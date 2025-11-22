@@ -12,7 +12,8 @@ import "./globals.css";
 //theme provider
 import { ThemeProvider } from "next-themes";
 
-
+//clerk provider
+import {ClerkProvider,} from '@clerk/nextjs'
 
 
 
@@ -43,21 +44,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
+
+       <ClerkProvider>
     <html lang="en">
-      <body className={`${interFont.className}${barlowFont.variable}`}>
-        
+      <body className={`${interFont.className} ${barlowFont.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        
-
-        {children}
+          {children}
         </ThemeProvider>
-
-
-
-
-
       </body>
     </html>
+    </ClerkProvider>
   );
 }
 
