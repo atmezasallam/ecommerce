@@ -15,6 +15,11 @@ import { ThemeProvider } from "next-themes";
 //clerk provider
 import {ClerkProvider,} from '@clerk/nextjs'
 
+//toast
+import {Toaster} from "@/src/components/ui/toaster";
+import{Toaster as SonnarToaster} from "@/src/components/ui/sonner";
+import CartMergeOnLogin from "@/src/components/cart/CartMergeOnLogin";
+import WishlistMergeOnLogin from "@/src/components/wishlist/WishlistMergeOnLogin";
 
 
 
@@ -48,8 +53,18 @@ export default function RootLayout({
        <ClerkProvider>
     <html lang="en">
       <body className={`${interFont.className} ${barlowFont.variable}`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+         attribute="class"
+          defaultTheme="light" 
+          enableSystem
+           disableTransitionOnChange
+           
+           >
+          <CartMergeOnLogin />
+          <WishlistMergeOnLogin />
           {children}
+          <Toaster/>
+          <SonnarToaster position="bottom-left"/>
         </ThemeProvider>
       </body>
     </html>
