@@ -22,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 // Schema
 import { SubCategoryFormSchema } from "@/src/lib/schema";
+import { CLOUDINARY_UPLOAD_PRESET } from "@/src/lib/cloudinary-config";
 
 // UI Components
 import { AlertDialog } from "@/src/components/ui/alert-dialog";
@@ -158,7 +159,7 @@ const SubCategoryDetails: FC<SubCategoryDetailsProps> = ({
                       <FormControl>
                         <ImageUpload
                           type="profile"
-                          cloudinary_key="salam7778"
+                          cloudinary_key={CLOUDINARY_UPLOAD_PRESET}
                           value={images.map((image) => image.url)}
                           disabled={isLoading}
                           onChange={(url: string) => {

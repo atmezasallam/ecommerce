@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { Loader2, Lock, User } from "lucide-react";
 import { toast } from "sonner";
 import { updateProfile } from "@/src/app/actions/user.actions";
+import { CLOUDINARY_UPLOAD_PRESET } from "@/src/lib/cloudinary-config";
 import { AccountBreadcrumbs } from "@/src/components/user/account-breadcrumbs";
 import { AccountPageHero } from "@/src/components/user/account-page-hero";
 import { Badge } from "@/src/components/ui/badge";
@@ -105,7 +106,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
             </div>
             {mounted ? (
               <CldUploadWidget
-                uploadPreset="salam7778"
+                uploadPreset={CLOUDINARY_UPLOAD_PRESET}
                 onSuccess={(result) => {
                   const info = result?.info;
                   const url =

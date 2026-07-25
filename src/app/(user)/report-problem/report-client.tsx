@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { reportProblem } from "@/src/app/actions/user.actions";
+import { CLOUDINARY_UPLOAD_PRESET } from "@/src/lib/cloudinary-config";
 import { AccountBreadcrumbs } from "@/src/components/user/account-breadcrumbs";
 import { AccountPageHero } from "@/src/components/user/account-page-hero";
 import { Button } from "@/src/components/ui/button";
@@ -236,7 +237,7 @@ export function ReportClient() {
                   Screenshot (optional)
                 </Label>
                 <CldUploadWidget
-                  uploadPreset="salam7778"
+                  uploadPreset={CLOUDINARY_UPLOAD_PRESET}
                   onSuccess={(result) => {
                     const info = result?.info;
                     const url =

@@ -6,6 +6,7 @@ import  Image from "next/image";
 import { CldUploadWidget } from "next-cloudinary";
 import { Button } from "@/src/components/ui/button";
 import { Trash } from "lucide-react";
+import { CLOUDINARY_UPLOAD_PRESET } from "@/src/lib/cloudinary-config";
 
 interface ImageUploadProps {
     disabled?: boolean;
@@ -69,7 +70,7 @@ error,
              </Button>
              </>
           ) }
-          <CldUploadWidget uploadPreset="salam7778" onSuccess={onUpload}  >
+          <CldUploadWidget uploadPreset={CLOUDINARY_UPLOAD_PRESET} onSuccess={onUpload}  >
 
             {({ open }) => {
             const onClick = () => {
@@ -119,7 +120,7 @@ error,
     
     else if (type === "cover") {
   return (
-    <CldUploadWidget uploadPreset="salam7778" onSuccess={onUpload}>
+    <CldUploadWidget uploadPreset={CLOUDINARY_UPLOAD_PRESET} onSuccess={onUpload}>
       {({ open }) => {
         const onClick = () => {
           if (!disabled) open();
@@ -222,7 +223,7 @@ error,
             
           
         </div>
-        <CldUploadWidget uploadPreset="salam7778" onSuccess={onUpload}>
+        <CldUploadWidget uploadPreset={CLOUDINARY_UPLOAD_PRESET} onSuccess={onUpload}>
       {({ open }) => {
         const onClick = () => {
           if (!disabled) open();

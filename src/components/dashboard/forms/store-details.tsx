@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 // Schema
 import { StoreFormSchema } from "@/src/lib/schema";
+import { CLOUDINARY_UPLOAD_PRESET } from "@/src/lib/cloudinary-config";
 
 // UI Components
 import { AlertDialog } from "@/src/components/ui/alert-dialog";
@@ -176,7 +177,7 @@ const handleSubmit = async (values: CategoryFormValues) => {
         <FormControl>
           <ImageUpload
             type="cover"
-            cloudinary_key="salam7778"
+            cloudinary_key={CLOUDINARY_UPLOAD_PRESET}
             value={images.map((image) => image.url)}
             disabled={isLoading}
             onChange={(url: string) => field.onChange([{ url }])}
@@ -204,7 +205,7 @@ const handleSubmit = async (values: CategoryFormValues) => {
             <FormControl>
               <ImageUpload
                 type="profile"
-                cloudinary_key="salam7778"
+                cloudinary_key={CLOUDINARY_UPLOAD_PRESET}
                 value={images.map((image) => image.url)}
                 disabled={isLoading}
                 onChange={(url: string) => {
