@@ -4,6 +4,7 @@ import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
+import { findOrCreateDbUserForClerk } from "@/src/lib/ensure-db-user";
 import slugify from "slugify";
 import { z } from "zod";
 
@@ -60,6 +61,30 @@ const updateProfileSchema = z.object({
     }),
 });
 
+export async function removeProfilePhoto(): Promise<{ success: boolean; message: string }> {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return { success: false, message: "You must be signed in." };
+    }
+
+    const dbUser = await findOrCreateDbUserForClerk();
+
+    await prisma.user.update({
+      where: { id: dbUser.id },
+      data: { image_url: null },
+    });
+
+    revalidatePath("/profile");
+    revalidatePath("/profile", "layout");
+    revalidatePath("/settings", "layout");
+    return { success: true, message: "Profile photo removed." };
+  } catch (e) {
+    console.error("removeProfilePhoto", e);
+    return { success: false, message: "Could not remove photo. Try again." };
+  }
+}
+
 export async function updateProfile(data: {
   name: string;
   image_url?: string;
@@ -76,14 +101,18 @@ export async function updateProfile(data: {
     const nextImage =
       parsed.data.image_url && parsed.data.image_url.length > 0 ? parsed.data.image_url : undefined;
 
+    const dbUser = await findOrCreateDbUserForClerk();
+
     await prisma.user.update({
-      where: { id: userId },
+      where: { id: dbUser.id },
       data: {
         name: parsed.data.name,
         ...(nextImage !== undefined ? { image_url: nextImage } : {}),
       },
     });
     revalidatePath("/profile");
+    revalidatePath("/profile", "layout");
+    revalidatePath("/settings", "layout");
     return { success: true, message: "Profile updated successfully." };
   } catch (e) {
     console.error("updateProfile", e);
@@ -315,65 +344,21 @@ export async function getProfilePageData(): Promise<{
   const { userId } = await auth();
   if (!userId) return { user: null };
 
-  let user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      image_url: true,
-      role: true,
-      createdAt: true,
-    },
-  });
-
-  const clerkUser = await currentUser();
-  const clerkEmail =
-    clerkUser?.emailAddresses?.[0]?.emailAddress ??
-    clerkUser?.primaryEmailAddress?.emailAddress ??
-    "";
-
-  if (!user && clerkEmail) {
-    user = await prisma.user.findUnique({
-      where: { email: clerkEmail },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        image_url: true,
-        role: true,
-        createdAt: true,
+  try {
+    const dbUser = await findOrCreateDbUserForClerk();
+    return {
+      user: {
+        id: dbUser.id,
+        name: dbUser.name,
+        email: dbUser.email,
+        image_url: dbUser.image_url,
+        role: dbUser.role,
+        createdAt: dbUser.createdAt,
       },
-    });
+    };
+  } catch {
+    return { user: null };
   }
-
-  if (!user && clerkEmail) {
-    await prisma.user.create({
-      data: {
-        id: userId,
-        name:
-          clerkUser?.firstName || clerkUser?.lastName
-            ? `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim()
-            : clerkUser?.username ?? userId,
-        email: clerkEmail,
-        image_url: clerkUser?.imageUrl ?? null,
-        role: "USER",
-      },
-    });
-    user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        image_url: true,
-        role: true,
-        createdAt: true,
-      },
-    });
-  }
-
-  return { user };
 }
 
 export async function getBecomeSellerPageData(): Promise<{

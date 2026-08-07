@@ -13,7 +13,7 @@ export default function CategoriesHeaderContainer({
 }) {
   const [open, setOpen] = useState<boolean>(false);
   return (
-    <div className="mx-auto flex w-full max-w-[1500px] items-center gap-2 px-4">
+    <div className="mx-auto flex w-full max-w-[1500px] items-center gap-1.5 px-3 sm:gap-2 sm:px-4">
       {/* Category menu */}
       <CategoriesMenu categories={categories} open={open} setOpen={setOpen} />
       {/* Offer tags links */}

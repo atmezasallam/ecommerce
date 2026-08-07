@@ -38,6 +38,7 @@ import { Plus, Search } from "lucide-react";
 // Modal provider hook
 import { useModal } from "@/src/providers/modal.provider";
 import Link from "next/link";
+import { cn } from "@/src/lib/utils";
 
 // Props interface for the table component
 interface DataTableProps<TData, TValue> {
@@ -118,9 +119,7 @@ export default function DataTable<TData, TValue>({
 
           {newTabLink && (
             <Link href={newTabLink}>
-              <Button
-                className="h-12 flex items-center gap-2 bg-dark text-white hover:bg-dark/90"
-              >
+              <Button className="h-12 flex items-center gap-2 bg-main-primary text-white hover:bg-main-primary/90">
                 <Plus size={15} />
                 Create product
               </Button>
@@ -166,7 +165,12 @@ export default function DataTable<TData, TValue>({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="max-w-[400px] break-words"
+                        className={cn(
+                          "align-middle",
+                          cell.column.id === "image"
+                            ? "w-56 min-w-56 max-w-56 py-3"
+                            : "max-w-[400px] break-words"
+                        )}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,

@@ -28,8 +28,8 @@ const Sidebar: FC<SidebarProps> = async ({ isAdmin, stores, messageUnreadCount =
     const user =await currentUser();
     return (
     <div className="fixed bottom-0 left-0 top-0 z-10 flex h-screen w-[300px] flex-col overflow-hidden border-r border-border bg-white p-3">
-          <div className="shrink-0 px-1 py-2">
-            <Logo width="100%" height="80px" />
+          <div className="shrink-0 px-1 py-3">
+            <Logo width="100%" height="140px" />
           </div>
            <span className="mt-1 shrink-0" />
            {user && (

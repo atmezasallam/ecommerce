@@ -9,7 +9,10 @@ import ProductQuestions from "@/src/components/store/product-page/product-questi
 import StoreCard from "@/src/components/store/cards/store-card";
 import StoreProducts from "@/src/components/store/product-page/store-products";
 import ProductReviews from "@/src/components/store/product-page/reviews/product-reviews";
+import { isInCart } from "@/src/app/actions/cart.actions";
 import { isInWishlist } from "@/src/app/actions/wishlist.actions";
+
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: { productSlug: string; variantSlug: string };
@@ -67,7 +70,12 @@ export default async function ProductVariantPage({
     12
   );
 
-  const initialInWishlist = await isInWishlist(productData.variantId);
+  const [initialInWishlist, initialInCart] = await Promise.all([
+    isInWishlist(productData.variantId),
+    sizeId
+      ? isInCart(productData.variantId, sizeId)
+      : Promise.resolve(false),
+  ]);
 
   return (
     <div className="max-w-[1650px] mx-auto p-4 overflow-x-hidden">
@@ -75,6 +83,7 @@ export default async function ProductVariantPage({
           productData={productData}
           sizeId={sizeId}
           initialInWishlist={initialInWishlist}
+          initialInCart={initialInCart}
         />
         {relatedProducts.products && relatedProducts.products.length > 0 && (
           <>

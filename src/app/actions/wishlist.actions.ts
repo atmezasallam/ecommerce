@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 
 import prisma from "@/lib/prisma";
 import { addToCart } from "@/src/app/actions/cart.actions";
+import { ensureDbUserForClerk } from "@/src/lib/ensure-db-user";
 import type { GuestWishlistItem, WishlistItemFull, WishlistResult } from "@/types/wishlist.types";
 import type { Prisma } from "@prisma/client";
 
@@ -30,6 +31,18 @@ const wishlistItemInclude = {
 
 function guestItemId(variantId: string): string {
   return `guest:${variantId}`;
+}
+
+/** Clerk id may differ from DB user id when the row was matched by email. */
+async function resolveWishlistUserId(): Promise<string | null> {
+  const { userId } = await auth();
+  if (!userId) return null;
+  try {
+    const dbUser = await ensureDbUserForClerk();
+    return dbUser.id;
+  } catch {
+    return null;
+  }
 }
 
 async function readGuestWishlist(): Promise<GuestWishlistItem[]> {
@@ -93,10 +106,10 @@ async function enrichGuestRows(
 }
 
 export async function getWishlist(): Promise<WishlistResult> {
-  const { userId } = await auth();
-  if (userId) {
+  const dbUserId = await resolveWishlistUserId();
+  if (dbUserId) {
     const list = await prisma.wishlist.findUnique({
-      where: { userId },
+      where: { userId: dbUserId },
       include: {
         items: {
           include: wishlistItemInclude,
@@ -107,7 +120,7 @@ export async function getWishlist(): Promise<WishlistResult> {
     const items = (list?.items ?? []).filter(
       (i: { product: { isArchived: boolean } }) => !i.product.isArchived
     ) as WishlistItemFull[];
-    return { items, isGuest: false, shareToken: userId };
+    return { items, isGuest: false, shareToken: dbUserId };
   }
   const guest = await readGuestWishlist();
   const items = await enrichGuestRows(guest);
@@ -134,58 +147,76 @@ export async function getPublicWishlistByUserId(
 export async function toggleWishlist(
   productId: string,
   variantId: string
-): Promise<{ added: boolean; message: string }> {
-  const variant = await prisma.productVariant.findUnique({
-    where: { id: variantId },
-    select: { id: true, productId: true },
-  });
-  if (!variant || variant.productId !== productId) {
-    return { added: false, message: "Invalid product or variant." };
-  }
-
-  const { userId } = await auth();
-  if (userId) {
-    let list = await prisma.wishlist.findUnique({ where: { userId } });
-    if (!list) {
-      list = await prisma.wishlist.create({ data: { userId } });
-    }
-    const existing = await prisma.wishlistItem.findUnique({
-      where: {
-        wishlistId_variantId: { wishlistId: list.id, variantId },
-      },
+): Promise<{ success: boolean; added: boolean; message: string }> {
+  try {
+    const variant = await prisma.productVariant.findUnique({
+      where: { id: variantId },
+      select: { id: true, productId: true },
     });
-    if (existing) {
-      await prisma.wishlistItem.delete({ where: { id: existing.id } });
+    if (!variant || variant.productId !== productId) {
+      return { success: false, added: false, message: "Invalid product or variant." };
+    }
+
+    const { userId: clerkId } = await auth();
+    const dbUserId = clerkId ? await resolveWishlistUserId() : null;
+    if (clerkId && !dbUserId) {
+      return {
+        success: false,
+        added: false,
+        message: "Could not sync your account. Try signing out and back in.",
+      };
+    }
+    if (dbUserId) {
+      let list = await prisma.wishlist.findUnique({ where: { userId: dbUserId } });
+      if (!list) {
+        list = await prisma.wishlist.create({ data: { userId: dbUserId } });
+      }
+      const existing = await prisma.wishlistItem.findUnique({
+        where: {
+          wishlistId_variantId: { wishlistId: list.id, variantId },
+        },
+      });
+      if (existing) {
+        await prisma.wishlistItem.delete({ where: { id: existing.id } });
+        revalidatePath("/profile/wishlist");
+        revalidatePath("/");
+        return { success: true, added: false, message: "Removed from wishlist." };
+      }
+      await prisma.wishlistItem.create({
+        data: {
+          wishlistId: list.id,
+          productId,
+          variantId,
+        },
+      });
       revalidatePath("/profile/wishlist");
       revalidatePath("/");
-      return { added: false, message: "Removed from wishlist." };
+      return { success: true, added: true, message: "Added to wishlist." };
     }
-    await prisma.wishlistItem.create({
-      data: {
-        wishlistId: list.id,
-        productId,
-        variantId,
-      },
-    });
-    revalidatePath("/profile/wishlist");
-    revalidatePath("/");
-    return { added: true, message: "Added to wishlist." };
-  }
 
-  const guest = await readGuestWishlist();
-  const idx = guest.findIndex((g) => g.variantId === variantId);
-  if (idx >= 0) {
-    guest.splice(idx, 1);
+    const guest = await readGuestWishlist();
+    const idx = guest.findIndex((g) => g.variantId === variantId);
+    if (idx >= 0) {
+      guest.splice(idx, 1);
+      await writeGuestWishlist(guest);
+      revalidatePath("/profile/wishlist");
+      revalidatePath("/");
+      return { success: true, added: false, message: "Removed from wishlist." };
+    }
+    guest.push({ productId, variantId });
     await writeGuestWishlist(guest);
     revalidatePath("/profile/wishlist");
     revalidatePath("/");
-    return { added: false, message: "Removed from wishlist." };
+    return { success: true, added: true, message: "Added to wishlist." };
+  } catch (error) {
+    console.error("toggleWishlist:", error);
+    return {
+      success: false,
+      added: false,
+      message:
+        error instanceof Error ? error.message : "Could not update wishlist. Try again.",
+    };
   }
-  guest.push({ productId, variantId });
-  await writeGuestWishlist(guest);
-  revalidatePath("/profile/wishlist");
-  revalidatePath("/");
-  return { added: true, message: "Added to wishlist." };
 }
 
 function parseGuestVariantIdFromItemId(itemId: string): string | null {
@@ -198,8 +229,8 @@ function parseGuestVariantIdFromItemId(itemId: string): string | null {
 export async function removeFromWishlist(
   itemId: string
 ): Promise<{ success: boolean; message: string }> {
-  const { userId } = await auth();
-  if (userId) {
+  const dbUserId = await resolveWishlistUserId();
+  if (dbUserId) {
     const guestVariant = parseGuestVariantIdFromItemId(itemId);
     if (guestVariant) {
       return { success: false, message: "Invalid item." };
@@ -208,7 +239,7 @@ export async function removeFromWishlist(
       where: { id: itemId },
       include: { wishlist: true },
     });
-    if (!item || item.wishlist.userId !== userId) {
+    if (!item || item.wishlist.userId !== dbUserId) {
       return { success: false, message: "Item not found." };
     }
     await prisma.wishlistItem.delete({ where: { id: itemId } });
@@ -295,9 +326,9 @@ export async function moveAllToCart(): Promise<{
 }
 
 export async function clearWishlist(): Promise<{ success: boolean; message: string }> {
-  const { userId } = await auth();
-  if (userId) {
-    const list = await prisma.wishlist.findUnique({ where: { userId } });
+  const dbUserId = await resolveWishlistUserId();
+  if (dbUserId) {
+    const list = await prisma.wishlist.findUnique({ where: { userId: dbUserId } });
     if (list) {
       await prisma.wishlistItem.deleteMany({ where: { wishlistId: list.id } });
     }
@@ -311,10 +342,10 @@ export async function clearWishlist(): Promise<{ success: boolean; message: stri
 }
 
 export async function getWishlistCount(): Promise<number> {
-  const { userId } = await auth();
-  if (userId) {
+  const dbUserId = await resolveWishlistUserId();
+  if (dbUserId) {
     return prisma.wishlistItem.count({
-      where: { wishlist: { userId } },
+      where: { wishlist: { userId: dbUserId } },
     });
   }
   const guest = await readGuestWishlist();
@@ -322,10 +353,10 @@ export async function getWishlistCount(): Promise<number> {
 }
 
 export async function isInWishlist(variantId: string): Promise<boolean> {
-  const { userId } = await auth();
-  if (userId) {
+  const dbUserId = await resolveWishlistUserId();
+  if (dbUserId) {
     const row = await prisma.wishlistItem.findFirst({
-      where: { variantId, wishlist: { userId } },
+      where: { variantId, wishlist: { userId: dbUserId } },
       select: { id: true },
     });
     return Boolean(row);
@@ -334,7 +365,10 @@ export async function isInWishlist(variantId: string): Promise<boolean> {
   return guest.some((g) => g.variantId === variantId);
 }
 
-export async function mergeGuestWishlistOnLogin(userId: string): Promise<void> {
+export async function mergeGuestWishlistOnLogin(_clerkUserId?: string): Promise<void> {
+  const dbUserId = await resolveWishlistUserId();
+  if (!dbUserId) return;
+
   const cookieStore = cookies();
   const guestWishlistCookie = cookieStore.get(GUEST_WISHLIST_COOKIE);
   if (!guestWishlistCookie?.value || guestWishlistCookie.value === "[]") return;
@@ -356,9 +390,9 @@ export async function mergeGuestWishlistOnLogin(userId: string): Promise<void> {
 
   if (guest.length === 0) return;
 
-  let list = await prisma.wishlist.findUnique({ where: { userId } });
+  let list = await prisma.wishlist.findUnique({ where: { userId: dbUserId } });
   if (!list) {
-    list = await prisma.wishlist.create({ data: { userId } });
+    list = await prisma.wishlist.create({ data: { userId: dbUserId } });
   }
 
   await Promise.all(

@@ -26,6 +26,7 @@ interface Props {
   setVariantImages: Dispatch<SetStateAction<ProductVariantImage[]>>;
   setActiveImage: Dispatch<SetStateAction<ProductVariantImage | null>>;
   initialInWishlist?: boolean;
+  initialInCart?: boolean;
 }
 
 const ProductInfo: FC<Props> = ({
@@ -34,6 +35,7 @@ const ProductInfo: FC<Props> = ({
   setVariantImages,
   setActiveImage,
   initialInWishlist = false,
+  initialInCart = false,
 }) => {
   // Check if productData exists, return null if it's missing (prevents rendering when there's no data)
   if (!productData) return null;
@@ -170,6 +172,7 @@ const ProductInfo: FC<Props> = ({
             sizeId={selectedSize.id}
             storeId={store.id}
             stock={selectedSize.quantity}
+            initialInCart={initialInCart}
           />
         ) : (
           <Button type="button" disabled variant="secondary" className="min-w-[200px] gap-2">

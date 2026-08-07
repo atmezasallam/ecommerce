@@ -62,7 +62,7 @@ const StoreCard: FC<Props> = ({ store, productId, productName, productImageUrl }
   };
   return (
     <div className="w-full">
-      <div className="bg-primary-light flex flex-col gap-4 rounded-xl px-4 py-3 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 rounded-xl bg-muted/60 px-4 py-3 md:flex-row md:items-center md:justify-between">
         <div className="flex min-w-0 items-center">
           <Link href={`/store/${storeUrl}`}>
             {logoSrc ? (
@@ -96,10 +96,10 @@ const StoreCard: FC<Props> = ({ store, productId, productName, productImageUrl }
         <div className="flex flex-wrap items-center gap-2 md:shrink-0">
           <div
             className={cn(
-              "flex h-9 cursor-pointer items-center rounded-full border border-black px-4 text-base font-bold hover:bg-dark hover:text-white",
-              {
-                "bg-dark text-white": following,
-              }
+              "flex h-9 cursor-pointer items-center rounded-full border border-main-primary px-4 text-base font-bold transition-colors",
+              following
+                ? "bg-main-primary text-white"
+                : "bg-white text-main-primary hover:bg-main-primary hover:text-white"
             )}
             onClick={() => handleStoreFollow()}
           >

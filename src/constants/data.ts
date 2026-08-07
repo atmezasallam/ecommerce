@@ -50,14 +50,14 @@ export const adminDashboardSidebarOptions: DashboardSidebarMenuInterface[] = [
 
 export const SellerDashboardSidebarOptions: DashboardSidebarMenuInterface[] = [
   {
-    label: "Messages",
-    icon: "messages",
-    link: "/dashboard/seller/messages",
-  },
-  {
     label: "Dashboard",
     icon: "dashboard",
     link: "",
+  },
+  {
+    label: "Messages",
+    icon: "messages",
+    link: "/dashboard/seller/messages",
   },
   {
     label: "Products",

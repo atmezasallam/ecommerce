@@ -9,7 +9,7 @@ export default async function CategoriesHeader() {
   // Fetch all offer tags
   const offerTags = await getAllOfferTags();
   return (
-    <div className="w-full border-b border-black/10 bg-[#7dbfa4] px-0 py-2 shadow-[0_8px_24px_-18px_rgba(0,0,0,0.25)]">
+    <div className="hidden w-full border-b border-black/10 bg-[#7dbfa4] px-0 py-1.5 shadow-[0_8px_24px_-18px_rgba(0,0,0,0.25)] sm:py-2 lg:block">
       <CategoriesHeaderContainer
         categories={categories}
         offerTags={offerTags}

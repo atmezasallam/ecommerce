@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check, Loader2, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 
-import { addToCart } from "@/src/app/actions/cart.actions";
+import { addToCart, removeFromCartLine } from "@/src/app/actions/cart.actions";
 import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/lib/utils";
 
@@ -15,9 +16,19 @@ type AddToCartButtonProps = {
   storeId: string;
   stock: number;
   className?: string;
+  initialInCart?: boolean;
 };
 
-type AddToCartState = "idle" | "loading" | "added" | "out_of_stock";
+type AddToCartState = "idle" | "loading" | "in_cart" | "out_of_stock";
+
+function resolveInitialState(
+  stock: number,
+  initialInCart: boolean
+): AddToCartState {
+  if (stock === 0) return "out_of_stock";
+  if (initialInCart) return "in_cart";
+  return "idle";
+}
 
 export default function AddToCartButton({
   productId,
@@ -26,35 +37,51 @@ export default function AddToCartButton({
   storeId,
   stock,
   className,
+  initialInCart = false,
 }: AddToCartButtonProps) {
-  const [state, setState] = useState<AddToCartState>(stock === 0 ? "out_of_stock" : "idle");
+  const router = useRouter();
+  const pendingRemove = useRef(false);
+  const [state, setState] = useState<AddToCartState>(() =>
+    resolveInitialState(stock, initialInCart)
+  );
+
+  useEffect(() => {
+    setState(resolveInitialState(stock, initialInCart));
+  }, [initialInCart, variantId, sizeId, stock]);
 
   const onClick = async () => {
     if (state === "loading" || state === "out_of_stock") return;
 
+    const removing = state === "in_cart";
+    pendingRemove.current = removing;
     setState("loading");
-    const result = await addToCart({
-      productId,
-      variantId,
-      sizeId,
-      storeId,
-      quantity: 1,
-    });
+
+    const result = removing
+      ? await removeFromCartLine(variantId, sizeId)
+      : await addToCart({
+          productId,
+          variantId,
+          sizeId,
+          storeId,
+          quantity: 1,
+        });
 
     if (result.success) {
-      setState("added");
-      toast.success("Item added to cart!");
-      setTimeout(() => setState(stock === 0 ? "out_of_stock" : "idle"), 2000);
+      setState(removing ? "idle" : "in_cart");
+      toast.success(
+        removing ? "Removed from cart." : "Item added to cart!"
+      );
+      router.refresh();
       return;
     }
 
-    setState("idle");
+    setState(resolveInitialState(stock, initialInCart));
     toast.error(result.message);
   };
 
   if (state === "out_of_stock") {
     return (
-      <Button disabled className={cn("w-full", className)}>
+      <Button disabled className={cn("w-full min-w-[200px]", className)}>
         Out of Stock
       </Button>
     );
@@ -62,24 +89,30 @@ export default function AddToCartButton({
 
   if (state === "loading") {
     return (
-      <Button disabled className={cn("w-full", className)}>
+      <Button disabled className={cn("w-full min-w-[200px]", className)}>
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        Adding...
+        {pendingRemove.current ? "Removing..." : "Adding..."}
       </Button>
     );
   }
 
-  if (state === "added") {
+  if (state === "in_cart") {
     return (
-      <Button disabled className={cn("w-full bg-green-600 hover:bg-green-600", className)}>
+      <Button
+        onClick={onClick}
+        className={cn(
+          "w-full min-w-[200px] bg-green-600 hover:bg-green-700",
+          className
+        )}
+      >
         <Check className="mr-2 h-4 w-4" />
-        Added!
+        In cart
       </Button>
     );
   }
 
   return (
-    <Button onClick={onClick} className={cn("w-full", className)}>
+    <Button onClick={onClick} className={cn("w-full min-w-[200px]", className)}>
       <ShoppingCart className="mr-2 h-4 w-4" />
       Add to Cart
     </Button>

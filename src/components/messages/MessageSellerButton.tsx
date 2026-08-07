@@ -47,7 +47,7 @@ export default function MessageSellerButton({
       <button
         type="button"
         className={cn(
-          "flex h-9 min-w-[110px] cursor-pointer items-center justify-center rounded-full border border-black bg-main-primary px-4 text-base font-bold text-white hover:opacity-90",
+          "flex h-9 min-w-[110px] cursor-pointer items-center justify-center rounded-full border border-main-primary bg-main-primary px-4 text-base font-bold text-white hover:bg-main-primary/90",
           className
         )}
         onClick={onClick}

@@ -13,9 +13,15 @@ interface Props {
   productData: ProductPageDataType | null | undefined;
   sizeId?: string;
   initialInWishlist?: boolean;
+  initialInCart?: boolean;
 }
 
-const ProductPageContainer: FC<Props> = ({ productData, sizeId, initialInWishlist }) => {
+const ProductPageContainer: FC<Props> = ({
+  productData,
+  sizeId,
+  initialInWishlist,
+  initialInCart,
+}) => {
   const [variantImages, setVariantImages] = useState<ProductVariantImage[]>(
     []
   );
@@ -60,6 +66,7 @@ const ProductPageContainer: FC<Props> = ({ productData, sizeId, initialInWishlis
             setVariantImages={setVariantImages}
             setActiveImage={setActiveImage}
             initialInWishlist={initialInWishlist}
+            initialInCart={initialInCart}
           />
           {typeof shippingDetails !== "boolean" && shippingDetails && (
             <div className="mt-4 space-y-4">

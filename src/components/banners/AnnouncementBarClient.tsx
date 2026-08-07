@@ -44,11 +44,12 @@ export default function AnnouncementBarClient({ messages, speed, bgColor, textCo
   };
 
   return (
-    <div style={{ backgroundColor: bgColor }} className="relative z-10 w-full overflow-hidden py-2">
+    <div style={{ backgroundColor: bgColor }} className="relative z-10 w-full overflow-hidden py-1.5 sm:py-2">
       <button
         type="button"
         aria-label="Dismiss announcement"
-        className="absolute right-4 top-1/2 z-10 -translate-y-1/2 text-white/80 hover:text-white"
+        className="absolute right-3 top-1/2 z-10 grid h-6 w-6 -translate-y-1/2 place-items-center rounded-full transition-colors hover:bg-black/10 sm:right-4"
+        style={{ color: textColor }}
         onClick={closeBar}
       >
         <X size={14} />

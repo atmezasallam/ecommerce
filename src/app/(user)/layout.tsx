@@ -3,9 +3,12 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getTotalUnreadCount } from "@/src/app/actions/message.actions";
+import { findOrCreateDbUserForClerk } from "@/src/lib/ensure-db-user";
 import { getRequestOrigin } from "@/src/lib/request-origin";
 import { UserAccountSidebar } from "@/src/components/user/UserAccountSidebar";
 import { ArrowLeft } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 export default async function UserAccountLayout({ children }: { children: React.ReactNode }) {
   const { userId } = await auth();
@@ -14,17 +17,14 @@ export default async function UserAccountLayout({ children }: { children: React.
   }
 
   const [dbUser, existingStore, messageUnreadCount] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: userId },
-      select: { role: true },
-    }),
+    findOrCreateDbUserForClerk(),
     prisma.store.findFirst({
       where: { userId },
       select: { id: true },
     }),
     getTotalUnreadCount(),
   ]);
-  const dbRole = dbUser?.role ?? "USER";
+  const dbRole = dbUser.role;
   const hasStore = Boolean(existingStore);
   const becomeSellerAbsoluteUrl = `${getRequestOrigin()}/become-a-seller`;
 
@@ -47,6 +47,8 @@ export default async function UserAccountLayout({ children }: { children: React.
           <div className="lg:col-span-1">
             <UserAccountSidebar
               dbRole={dbRole}
+              dbName={dbUser.name}
+              dbImageUrl={dbUser.image_url}
               hasStore={hasStore}
               becomeSellerAbsoluteUrl={becomeSellerAbsoluteUrl}
               messageUnreadCount={messageUnreadCount}

@@ -2,6 +2,7 @@
 
 import { unstable_cache } from "next/cache";
 import { db } from "@/src/lib/db";
+import { getProductCardImages } from "@/src/lib/product-card-images";
 
 type HomeSort = "sales" | "rating" | "createdAt";
 
@@ -74,7 +75,7 @@ async function getHomepageProducts(sortBy: HomeSort) {
       variantId: variant.id,
       variantSlug: variant.slug,
       variantName: variant.variantName,
-      images: variant.images,
+      images: getProductCardImages(variant),
       sizes: variant.sizes,
     })),
     variantImages: product.variants.map((variant) => ({

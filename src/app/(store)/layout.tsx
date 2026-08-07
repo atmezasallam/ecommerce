@@ -18,7 +18,7 @@ export default async function StoreLayout({ children }: { children: ReactNode })
   ]);
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
         <Header
           cartCount={cartCount}
           wishlistCount={wishlistCount}

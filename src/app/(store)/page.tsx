@@ -13,7 +13,7 @@ const HeroBannerSlider = dynamic(
   () => import("@/src/components/banners/HeroBannerSlider"),
   {
     ssr: false,
-    loading: () => <div className="h-[400px] bg-muted animate-pulse w-full rounded-2xl" />,
+    loading: () => <div className="h-[220px] sm:h-[280px] md:h-[360px] lg:h-[460px] bg-muted animate-pulse w-full rounded-2xl" />,
   }
 );
 const PromotionalSixGrid = dynamic(
@@ -39,15 +39,15 @@ export default async function HomePage() {
   ]);
 
   return (
-    <main>
+    <main className="overflow-x-hidden">
       <AnnouncementBar />
       <div className="px-4 pt-4 md:px-8 md:pt-6 lg:px-12">
-        <Suspense fallback={<div className="h-[400px] bg-muted animate-pulse w-full rounded-2xl" />}>
+        <Suspense fallback={<div className="h-[220px] sm:h-[280px] md:h-[360px] lg:h-[460px] bg-muted animate-pulse w-full rounded-2xl" />}>
           <HeroBannerSlider banners={heroBanners} />
         </Suspense>
       </div>
 
-      <div className="space-y-8 p-6 md:p-14">
+      <div className="space-y-5 p-4 md:space-y-8 md:p-14">
         <Suspense fallback={<div className="h-24 bg-muted/50 animate-pulse w-full rounded-xl" />}>
           <CategoryStrip categories={categories} />
         </Suspense>

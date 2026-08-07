@@ -66,6 +66,9 @@ font-family:var(--font-barlow) ;
   --color-orange-seconadry: #d3031c;
   --color-main-primary: #191919;
   --color-main-secondary: #757575;
+  --color-surface: #ffffff;
+  --color-subtle: #191919;
+  --color-base: #95cfb2;
 
 }
 
@@ -469,6 +472,12 @@ font-family:var(--font-barlow) ;
   overflow: hidden !important;
 }
 
+.product-card-swiper,
+.product-card-swiper .swiper-wrapper,
+.product-card-swiper .swiper-slide {
+  height: 100% !important;
+}
+
 .home-hero-swiper {
   border-radius: 1rem;
   box-shadow: 0 22px 50px -30px rgba(59, 130, 246, 0.35);
@@ -476,6 +485,7 @@ font-family:var(--font-barlow) ;
 
 .home-hero-swiper .swiper-button-next,
 .home-hero-swiper .swiper-button-prev {
+  display: none;
   height: 42px;
   width: 42px;
   border-radius: 9999px;
@@ -485,10 +495,17 @@ font-family:var(--font-barlow) ;
   transition: all 0.25s ease;
 }
 
-.home-hero-swiper .swiper-button-next:hover,
-.home-hero-swiper .swiper-button-prev:hover {
-  background: rgba(59, 130, 246, 0.55);
-  transform: translateY(-1px);
+@media (min-width: 640px) {
+  .home-hero-swiper .swiper-button-next,
+  .home-hero-swiper .swiper-button-prev {
+    display: flex;
+  }
+
+  .home-hero-swiper .swiper-button-next:hover,
+  .home-hero-swiper .swiper-button-prev:hover {
+    background: rgba(59, 130, 246, 0.55);
+    transform: translateY(-1px);
+  }
 }
 
 .home-hero-swiper .swiper-button-next::after,
@@ -499,21 +516,40 @@ font-family:var(--font-barlow) ;
 }
 
 .home-hero-swiper .swiper-pagination {
-  bottom: 14px !important;
+  bottom: 10px !important;
+}
+
+@media (min-width: 640px) {
+  .home-hero-swiper .swiper-pagination {
+    bottom: 14px !important;
+  }
 }
 
 .home-hero-swiper .swiper-pagination-bullet {
-  width: 22px;
-  height: 6px;
+  width: 16px;
+  height: 5px;
   border-radius: 9999px;
   background: rgba(226, 232, 240, 0.75);
   opacity: 1;
   transition: all 0.25s ease;
 }
 
+@media (min-width: 640px) {
+  .home-hero-swiper .swiper-pagination-bullet {
+    width: 22px;
+    height: 6px;
+  }
+}
+
 .home-hero-swiper .swiper-pagination-bullet-active {
-  width: 34px;
+  width: 24px;
   background: linear-gradient(90deg, #60a5fa, #818cf8);
+}
+
+@media (min-width: 640px) {
+  .home-hero-swiper .swiper-pagination-bullet-active {
+    width: 34px;
+  }
 }
 
 /*  clean product card */

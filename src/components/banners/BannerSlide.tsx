@@ -47,7 +47,7 @@ export default function BannerSlide({ banner, priority = false }: BannerSlidePro
       <div className="absolute -right-24 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-indigo-400/20 blur-3xl" />
 
       <div className="absolute inset-0 flex items-center">
-        <div className="mx-auto w-full max-w-7xl px-8">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8">
           {/* No frosted full-width card: backdrop-blur read as a “hover slab” and can paint badly over images */}
           <div className="max-w-xl space-y-2 py-2 md:space-y-3 md:py-4" style={{ color: banner.textColor }}>
             {banner.subtitle ? (
@@ -66,7 +66,7 @@ export default function BannerSlide({ banner, priority = false }: BannerSlidePro
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.45 }}
-                className="text-2xl font-black leading-tight drop-shadow-[0_4px_28px_rgba(0,0,0,0.85)] md:text-4xl lg:text-5xl"
+                className="text-xl font-black leading-tight drop-shadow-[0_4px_28px_rgba(0,0,0,0.85)] sm:text-2xl md:text-4xl lg:text-5xl"
               >
                 {banner.title}
               </motion.h2>

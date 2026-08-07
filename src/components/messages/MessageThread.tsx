@@ -234,7 +234,7 @@ export default function MessageThread({
             const prev = messages[idx - 1];
             const d = new Date(msg.createdAt);
             const showDivider = !prev || !sameDay(new Date(prev.createdAt), d);
-            const sentByMe = msg.id.startsWith("temp-") || msg.senderId === uid;
+            const sentByMe = msg.id.startsWith("temp-") || msg.senderRole === role;
 
             return (
               <div key={msg.id}>

@@ -1,5 +1,6 @@
 "use client";
 import { cn } from "@/src/lib/utils";
+import { getOfferTagBrowseHref, isOfferTagBrowseActive } from "@/src/lib/browse-links";
 import { OfferTag } from "@prisma/client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -15,6 +16,7 @@ export default function OfferTagsLinks({
   const [splitPoint, setSplitPoint] = useState(6); // Default to large screen
   const searchParams = useSearchParams();
   const activeOffer = searchParams.get("offer");
+  const activeSort = searchParams.get("sort");
 
   useEffect(() => {
     // Handle media queries on client side only to avoid hydration issues
@@ -43,13 +45,15 @@ export default function OfferTagsLinks({
     <div className="relative w-full overflow-x-auto scrollbar">
       <div className="flex min-w-max items-center gap-2">
         {offerTags.slice(0, splitPoint).map((tag, i) => {
-          const isActive = activeOffer === tag.url || (i === 0 && !activeOffer);
+          const isActive =
+            isOfferTagBrowseActive(tag.url, { offer: activeOffer, sort: activeSort }) ||
+            (i === 0 && !activeOffer && !activeSort);
           return (
             <Link
               key={tag.id}
-              href={`/browse?offer=${tag.url}`}
+              href={getOfferTagBrowseHref(tag.url)}
               className={cn(
-                "whitespace-nowrap rounded-2xl border px-5 py-2 text-sm font-semibold tracking-tight transition-all duration-300 ease-out",
+                "whitespace-nowrap rounded-2xl border px-3 py-1.5 text-xs font-semibold tracking-tight transition-all duration-300 ease-out sm:px-5 sm:py-2 sm:text-sm",
                 "backdrop-blur-sm",
                 {
                   "border-black/70 bg-gradient-to-r from-black/45 to-black/30 text-white shadow-[0_10px_24px_-12px_rgba(0,0,0,0.7)] ring-1 ring-white/20":

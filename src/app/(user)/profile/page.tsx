@@ -1,5 +1,6 @@
-import { redirect } from "next/navigation";
 import { getProfilePageData } from "@/src/app/actions/user.actions";
+
+export const dynamic = "force-dynamic";
 import { ProfileClient } from "./profile-client";
 import { AccountBreadcrumbs } from "@/src/components/user/account-breadcrumbs";
 import { AccountPageHero } from "@/src/components/user/account-page-hero";

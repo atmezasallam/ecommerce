@@ -6,7 +6,7 @@ export default async function FeaturedProductsSection() {
   const products = productsData.products;
 
   return (
-    <section className="rounded-3xl border border-[#7dbfa4] bg-[#7dbfa4] p-4 shadow-sm md:p-6">
+    <section className="rounded-2xl border border-[#7dbfa4] bg-[#7dbfa4] p-2 shadow-sm sm:rounded-3xl sm:p-4 md:p-6">
       <ProductList
         products={products}
         title="All Products"

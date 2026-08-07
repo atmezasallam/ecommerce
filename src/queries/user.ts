@@ -10,6 +10,7 @@ import {
   ShippingAddress,
 } from "@/src/lib/types";
 import { currentUser } from "@clerk/nextjs/server";
+import { ensureDbUserForClerk } from "@/src/lib/ensure-db-user";
 import { getCookie } from "cookies-next";
 import { cookies } from "next/headers";
 import {
@@ -17,55 +18,6 @@ import {
   getProductShippingFee,
   getShippingDetails,
 } from "@/src/queries/product";
-
-/** Clerk session user may not have a DB row yet (webhooks off locally). */
-async function ensureDbUserForClerk() {
-  const authUser = await currentUser();
-  if (!authUser) throw new Error("Unauthenticated");
-
-  const clerkEmail =
-    authUser.emailAddresses?.[0]?.emailAddress ??
-    authUser.primaryEmailAddress?.emailAddress ??
-    "";
-
-  let dbUser = await db.user.findUnique({
-    where: { id: authUser.id },
-  });
-
-  if (!dbUser) {
-    dbUser = await db.user.findUnique({
-      where: { email: clerkEmail },
-    });
-  }
-
-  if (!dbUser) {
-    dbUser = await db.user.create({
-      data: {
-        id: authUser.id,
-        name:
-          authUser.firstName || authUser.lastName
-            ? `${authUser.firstName || ""} ${authUser.lastName || ""}`.trim()
-            : authUser.username || authUser.id,
-        email: clerkEmail,
-        image_url: authUser.imageUrl,
-        role: "USER",
-      },
-    });
-  }
-
-  await db.user.update({
-    where: { id: dbUser.id },
-    data: {
-      name:
-        authUser.firstName || authUser.lastName
-          ? `${authUser.firstName || ""} ${authUser.lastName || ""}`.trim()
-          : authUser.username || authUser.id,
-      image_url: authUser.imageUrl,
-    },
-  });
-
-  return dbUser;
-}
 
 /**
  * @name followStore

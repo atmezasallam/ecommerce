@@ -37,6 +37,8 @@ const navItems = [
 
 type UserAccountSidebarProps = {
   dbRole: "USER" | "ADMIN" | "SELLER";
+  dbName: string;
+  dbImageUrl?: string | null;
   hasStore?: boolean;
   becomeSellerAbsoluteUrl?: string;
   messageUnreadCount?: number;
@@ -65,12 +67,20 @@ function StoreStatusNotice({
 
 export function UserAccountSidebar({
   dbRole,
+  dbName,
+  dbImageUrl,
   hasStore = false,
   becomeSellerAbsoluteUrl = "",
   messageUnreadCount = 0,
 }: UserAccountSidebarProps) {
   const pathname = usePathname();
   const { user, isLoaded } = useUser();
+
+  const displayName =
+    dbName || (isLoaded ? user?.fullName || user?.username || "Member" : "…");
+  const displayImage = dbImageUrl ?? user?.imageUrl ?? null;
+  const displayEmail =
+    (isLoaded ? user?.primaryEmailAddress?.emailAddress : null) ?? "";
 
   const isSeller = dbRole === "SELLER";
   const links = navItems.filter((item) => !(isSeller && item.href === "/become-a-seller"));
@@ -93,6 +103,7 @@ export function UserAccountSidebar({
     );
 
   const initials =
+    displayName?.[0] ??
     user?.firstName?.[0] ??
     user?.username?.[0] ??
     user?.primaryEmailAddress?.emailAddress?.[0] ??
@@ -131,16 +142,12 @@ export function UserAccountSidebar({
         <div className="sticky top-24 space-y-6 rounded-2xl border bg-card p-5 shadow-sm">
           <div className="flex flex-col items-center text-center">
             <Avatar className="h-16 w-16 border-2 border-border">
-              {isLoaded && user?.imageUrl ? (
-                <AvatarImage src={user.imageUrl} alt="" />
-              ) : null}
+              {displayImage ? <AvatarImage src={displayImage} alt="" /> : null}
               <AvatarFallback className="text-lg font-medium">{initials.toUpperCase()}</AvatarFallback>
             </Avatar>
-            <p className="mt-3 max-w-full truncate font-semibold">
-              {isLoaded ? user?.fullName || user?.username || "Member" : "…"}
-            </p>
+            <p className="mt-3 max-w-full truncate font-semibold">{displayName}</p>
             <p className="mt-0.5 max-w-full truncate text-xs text-muted-foreground">
-              {isLoaded ? user?.primaryEmailAddress?.emailAddress ?? "" : ""}
+              {displayEmail}
             </p>
             <Badge
               className="mt-3"

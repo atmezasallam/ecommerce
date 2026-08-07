@@ -259,18 +259,16 @@ import { SubCategoryWithCategoryType } from "@/src/lib/types";
 
 export const columns: ColumnDef<Category>[] = [
   {
-   
-
     accessorKey: "image",
-    header: "",
+    header: "Image",
     cell: ({ row }) => (
-      <div className="relative h-44 min-w-64 rounded-xl overflow-hidden">
+      <div className="relative size-48 shrink-0 overflow-hidden rounded-xl border border-border bg-muted shadow-md">
         <Image
           src={row.original.image}
-          alt=""
-          width={1000}
-          height={1000}
-          className="w-40 h-40 rounded-full object-cover shadow-2xl"
+          alt={row.original.name}
+          fill
+          className="object-cover"
+          sizes="192px"
         />
       </div>
     ),

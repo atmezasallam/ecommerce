@@ -7,7 +7,7 @@ export default function CategoryStrip({ categories }: { categories: Category[] }
 
   return (
     <section className="space-y-3">
-      <h2 className="text-main-primary text-2xl font-bold">
+      <h2 className="text-main-primary text-xl font-bold sm:text-2xl">
         Explore categories
       </h2>
       <div className="scrollbar flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scroll-smooth">
@@ -15,7 +15,7 @@ export default function CategoryStrip({ categories }: { categories: Category[] }
           <Link
             key={category.id}
             href={`/browse?category=${category.url}`}
-            className="group min-w-[110px] snap-start"
+            className="group min-w-[96px] snap-start sm:min-w-[110px]"
           >
             <div className="rounded-2xl border border-border bg-surface p-2 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
               <div className="overflow-hidden rounded-xl bg-base">
@@ -24,7 +24,7 @@ export default function CategoryStrip({ categories }: { categories: Category[] }
                   alt={category.name}
                   width={120}
                   height={120}
-                  className="h-[92px] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="h-[76px] w-full object-cover transition-transform duration-300 group-hover:scale-105 sm:h-[92px]"
                 />
               </div>
             </div>

@@ -1,8 +1,11 @@
 "use server";
 
 import { currentUser } from "@clerk/nextjs/server";
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+
 import { db } from "@/src/lib/db";
-import { unstable_cache } from "next/cache";
+
+const CATEGORIES_CACHE_TAG = "categories";
 
 
 type UpsertCategoryInput = {
@@ -40,9 +43,9 @@ export const upsertCategory = async (category: UpsertCategoryInput) => {
 
     const safeData = {
       id: category.id,
-      name: category.name ?? "",
+      name: (category.name ?? "").trim(),
       image: category.image ?? "",
-      url: category.url ?? "",
+      url: (category.url ?? "").trim(),
       featured: !!category.featured,
     };
 
@@ -81,6 +84,11 @@ export const upsertCategory = async (category: UpsertCategoryInput) => {
       },
     });
 
+    revalidateTag(CATEGORIES_CACHE_TAG);
+    revalidatePath("/");
+    revalidatePath("/browse");
+    revalidatePath("/dashboard/admin/categories");
+
     return categoryDetails;
   } catch (err) {
     console.log(err);
@@ -109,7 +117,7 @@ const getAllCategoriesCached = unstable_cache(
       },
     }),
   ["categories-with-subs"],
-  { revalidate: 3600 }
+  { revalidate: 3600, tags: [CATEGORIES_CACHE_TAG] }
 );
 
 export const getAllCategories = async () => getAllCategoriesCached();
@@ -270,6 +278,11 @@ export const deleteCategory = async (categoryId: string) => {
       where: { id: categoryId },
     });
   });
+
+  revalidateTag(CATEGORIES_CACHE_TAG);
+  revalidatePath("/");
+  revalidatePath("/browse");
+  revalidatePath("/dashboard/admin/categories");
 
   return response;
 };

@@ -45,6 +45,11 @@ export default function AddToWishlistButton({
       startTransition(async () => {
         try {
           const res = await toggleWishlist(productId, variantId);
+          if (!res.success) {
+            setSaved(prev);
+            toast.error(res.message);
+            return;
+          }
           setSaved(res.added);
           toast.success(res.added ? "Added to wishlist ♡" : "Removed from wishlist");
         } catch {

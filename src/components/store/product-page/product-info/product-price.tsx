@@ -52,10 +52,10 @@ const ProductPrice: FC<Props> = ({ sizeId, sizes, isCard }) => {
 
     return (
       <div>
-        <div className="text-[#2d6b54] inline-block font-bold leading-none mr-2.5">
+        <div className="text-[#2d6b54] inline-block font-bold leading-none mr-2.5 min-w-0 max-w-full">
           <span
             className={cn("inline-block text-4xl text-nowrap", {
-              "text-lg": isCard,
+              "text-sm lg:text-lg": isCard,
             })}
           >
             {priceDisplay}

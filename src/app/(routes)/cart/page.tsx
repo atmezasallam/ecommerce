@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Info } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 import CartContent from "@/src/components/cart/CartContent";
 import CartEmptyState from "@/src/components/cart/CartEmptyState";
 import OrderSummary from "@/src/components/cart/OrderSummary";

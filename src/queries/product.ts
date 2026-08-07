@@ -24,6 +24,7 @@ import { currentUser } from "@clerk/nextjs/server";
 // Slugify
 import slugify from "slugify";
 import { generateUniqueSlug } from "@/src/lib/utils";
+import { getProductCardImages } from "@/src/lib/product-card-images";
 import { revalidateTag, unstable_cache } from "next/cache";
 
 // Cookies
@@ -972,7 +973,7 @@ const getProductsCore = async (
       variantId: variant.id,
       variantSlug: variant.slug,
       variantName: variant.variantName,
-      images: variant.images,
+      images: getProductCardImages(variant),
       sizes: variant.sizes,
     }));
 
@@ -980,9 +981,7 @@ const getProductsCore = async (
     const variantImages: VariantImageType[] = filteredVariants.map(
       (variant: any) => ({
         url: `/product/${product.slug}/${variant.slug}`,
-        image: variant.variantImage
-          ? variant.variantImage
-          : variant.images[0].url,
+        image: variant.variantImage || variant.images[0]?.url || "",
       })
     );
 
@@ -1155,7 +1154,7 @@ const getHomepageProducts = async (
       variantId: variant.id,
       variantSlug: variant.slug,
       variantName: variant.variantName,
-      images: variant.images as unknown as VariantImageType[],
+      images: getProductCardImages(variant),
       sizes: variant.sizes as unknown as Size[],
     }));
 

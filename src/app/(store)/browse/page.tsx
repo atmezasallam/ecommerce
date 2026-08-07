@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import ProductList from "@/src/components/store/shared/product-list";
 import { getProducts } from "@/src/queries/product";
@@ -44,6 +45,10 @@ function getBrowseTitle(searchParams: BrowsePageProps["searchParams"]) {
 }
 
 export default async function BrowsePage({ searchParams }: BrowsePageProps) {
+  if (searchParams.offer === "top-rated" && !searchParams.sort) {
+    redirect("/browse?sort=top-rated");
+  }
+
   const currentPage = Math.max(1, Number.parseInt(searchParams.page ?? "1", 10) || 1);
 
   const filters: Record<string, string> = {};
@@ -64,11 +69,9 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   return (
     <main className="px-4 py-8 md:px-8 lg:px-12">
       <h1 className="text-2xl font-bold text-main-primary">{title}</h1>
-      {searchParams.search ? (
-        <p className="mt-2 text-sm text-muted-foreground">
-          {totalCount} {totalCount === 1 ? "result" : "results"}
-        </p>
-      ) : null}
+      <p className="mt-2 text-sm text-muted-foreground">
+        {totalCount} {totalCount === 1 ? "product" : "products"}
+      </p>
 
       <div className="mt-6">
         <ProductList products={products} />

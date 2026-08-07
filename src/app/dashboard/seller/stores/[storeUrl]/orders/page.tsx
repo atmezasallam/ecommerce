@@ -1,8 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
+import { updateSellerOrderStatus } from "@/src/app/actions/seller-order.actions";
 import { db } from "@/src/lib/db";
 import { Badge } from "@/src/components/ui/badge";
+import { Button } from "@/src/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
 import {
   Table,
@@ -33,6 +35,8 @@ type SellerOrderRow = {
 
 const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
+const sellerUpdatableStatuses = new Set(["PROCESSING", "SHIPPED", "DELIVERED"]);
+
 const statusClass: Record<string, string> = {
   PENDING_PAYMENT: "bg-yellow-500/10 text-yellow-700 border-yellow-500/20",
   PAYMENT_FAILED: "bg-red-500/10 text-red-700 border-red-500/20",
@@ -45,8 +49,10 @@ const statusClass: Record<string, string> = {
 
 export default async function SellerStoreOrdersPage({
   params,
+  searchParams,
 }: {
   params: { storeUrl: string };
+  searchParams?: { err?: string; saved?: string };
 }) {
   const { userId } = await auth();
   if (!userId) redirect("/");
@@ -143,6 +149,17 @@ export default async function SellerStoreOrdersPage({
         </p>
       </div>
 
+      {searchParams?.saved === "1" ? (
+        <p className="rounded-md border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-800">
+          Order status updated.
+        </p>
+      ) : null}
+      {searchParams?.err ? (
+        <p className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-800">
+          {searchParams.err}
+        </p>
+      ) : null}
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Recent Orders</CardTitle>
@@ -162,6 +179,7 @@ export default async function SellerStoreOrdersPage({
                   <TableHead>Shipping Address</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Payment</TableHead>
+                  <TableHead>Update Status</TableHead>
                   <TableHead className="text-right">Items</TableHead>
                   <TableHead className="text-right">Store Revenue</TableHead>
                   <TableHead className="text-right">Order Total</TableHead>
@@ -194,6 +212,30 @@ export default async function SellerStoreOrdersPage({
                     </TableCell>
                     <TableCell>
                       <Badge variant="secondary">{order.paymentStatus}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {sellerUpdatableStatuses.has(order.status) ? (
+                        <form action={updateSellerOrderStatus} className="flex items-center gap-2">
+                          <input type="hidden" name="storeUrl" value={params.storeUrl} />
+                          <input type="hidden" name="orderId" value={order.orderId} />
+                          <select
+                            name="status"
+                            defaultValue={order.status}
+                            className="h-9 rounded-md border bg-background px-2 text-sm"
+                          >
+                            <option value="PROCESSING">Processing</option>
+                            <option value="SHIPPED">Shipped</option>
+                            <option value="DELIVERED">Delivered</option>
+                          </select>
+                          <Button type="submit" size="sm" variant="secondary">
+                            Save
+                          </Button>
+                        </form>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          Available after payment is confirmed
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       {order.itemsCount} lines / {order.quantity} qty

@@ -3,7 +3,7 @@ import { Category } from "@prisma/client";
 import { ChevronDown, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 
 export default function CategoriesMenu({
   categories,
@@ -15,10 +15,18 @@ export default function CategoriesMenu({
   setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
+  const [hoverCapable, setHoverCapable] = useState(false);
 
-  const toggleMenu = (state: boolean) => {
+  useEffect(() => {
+    const media = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const update = () => setHoverCapable(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  const toggleMenu = useCallback((state: boolean) => {
     setOpen(state);
-    // Delay showing the dropdown until the trigger has finished expanding
     if (state) {
       setTimeout(() => {
         setDropdownVisible(true);
@@ -26,23 +34,38 @@ export default function CategoriesMenu({
     } else {
       setDropdownVisible(false);
     }
+  }, [setOpen]);
+
+  const handleClick = () => {
+    if (!hoverCapable) {
+      toggleMenu(!open);
+    }
   };
 
   return (
     <div
-      className="relative z-50 h-10 w-10 xl:w-[256px]"
-      onMouseEnter={() => toggleMenu(true)}
-      onMouseLeave={() => toggleMenu(false)}
+      className="relative z-50 h-10 w-10 shrink-0 xl:w-[256px]"
+      onMouseEnter={() => hoverCapable && toggleMenu(true)}
+      onMouseLeave={() => hoverCapable && toggleMenu(false)}
     >
       {/* Trigger and Dropdown Container */}
       <div className="relative">
         {/* Trigger */}
         <div
+          role="button"
+          tabIndex={0}
+          onClick={handleClick}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleClick();
+            }
+          }}
           className={cn(
             "group relative flex h-11 w-12 cursor-pointer items-center rounded-full text-white transition-all duration-300 ease-out xl:w-[256px] xl:translate-y-0",
             "border border-black/20 bg-[#7dbfa4] backdrop-blur-sm hover:border-black/40 hover:bg-[#7dbfa4] hover:shadow-lg hover:shadow-black/20 hover:scale-[1.02] active:scale-[0.98]",
             {
-              "w-[256px] rounded-b-none rounded-t-[20px] border-black/40 bg-[#7dbfa4] text-white text-base scale-100 hover:bg-[#7dbfa4] hover:shadow-2xl":
+              "w-[min(256px,calc(100vw-2rem))] rounded-b-none rounded-t-[20px] border-black/40 bg-[#7dbfa4] text-white text-base scale-100 hover:bg-[#7dbfa4] hover:shadow-2xl":
                 open,
               "scale-75": !open,
             }
@@ -76,7 +99,7 @@ export default function CategoriesMenu({
         {/* Dropdown */}
         <ul
           className={cn(
-            "scrollbar absolute left-0 top-10 w-[256px] overflow-y-auto rounded-b-[20px] border border-black/20 bg-white/95 shadow-2xl shadow-black/10 backdrop-blur-sm transition-all duration-300 ease-out origin-top",
+            "scrollbar absolute left-0 top-10 z-50 w-[min(256px,calc(100vw-2rem))] overflow-y-auto rounded-b-[20px] border border-black/20 bg-white/95 shadow-2xl shadow-black/10 backdrop-blur-sm transition-all duration-300 ease-out origin-top",
             {
               "pointer-events-auto max-h-[523px] scale-100 opacity-100 translate-y-0": dropdownVisible, // Show dropdown
               "pointer-events-none max-h-0 scale-[0.98] opacity-0 -translate-y-1": !dropdownVisible, // Hide dropdown
