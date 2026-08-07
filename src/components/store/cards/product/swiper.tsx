@@ -3,10 +3,10 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Autoplay } from "swiper/modules";
-import { ProductVariantImage } from "@prisma/client";
+import type { Swiper as SwiperInstance } from "swiper";
 import { useRef, useState } from "react";
 
-import { cn } from "@/src/lib/utils";
+import type { ProductCardImage } from "@/src/lib/types";
 
 import "swiper/css";
 
@@ -45,25 +45,20 @@ function ProductImage({
 export default function ProductCardImageSwiper({
   images,
 }: {
-  images: ProductVariantImage[];
+  images: ProductCardImage[];
 }) {
-  const swiperRef = useRef<{
-    swiper?: {
-      autoplay?: { start?: () => void; stop?: () => void };
-      slideTo?: (index: number) => void;
-    };
-  } | null>(null);
+  const swiperRef = useRef<SwiperInstance | null>(null);
   const [showCarousel, setShowCarousel] = useState(false);
   const validImages = images.filter((image) => image?.url);
 
   const startAutoplay = () => {
     if (validImages.length <= 1) return;
     setShowCarousel(true);
-    swiperRef.current?.swiper?.autoplay?.start?.();
+    swiperRef.current?.autoplay?.start?.();
   };
 
   const stopAndReset = () => {
-    const swiper = swiperRef.current?.swiper;
+    const swiper = swiperRef.current;
     if (!swiper) return;
     swiper.autoplay?.stop?.();
     swiper.slideTo?.(0);
@@ -91,10 +86,12 @@ export default function ProductCardImageSwiper({
       {showCarousel && validImages.length > 1 ? (
         <div className="absolute inset-0 hidden lg:block">
           <Swiper
-            ref={swiperRef}
             modules={[Autoplay]}
             autoplay={{ delay: 500 }}
             className="h-full w-full"
+            onSwiper={(swiper) => {
+              swiperRef.current = swiper;
+            }}
           >
             {validImages.map((img, index) => (
               <SwiperSlide key={img.id || index} className="relative !h-full">

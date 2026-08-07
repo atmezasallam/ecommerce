@@ -7,7 +7,7 @@ import { Dispatch, FC, SetStateAction } from "react";
 interface Props {
   images: VariantImageType[];
   variants: VariantSimplified[];
-  setVariant: Dispatch<SetStateAction<VariantSimplified>>;
+  setVariant: Dispatch<SetStateAction<VariantSimplified | null>>;
   selectedVariant: VariantSimplified;
 }
 

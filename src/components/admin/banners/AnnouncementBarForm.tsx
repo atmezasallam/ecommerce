@@ -159,7 +159,13 @@ export default function AnnouncementBarForm({ announcementBar }: AnnouncementBar
             <FormItem>
               <FormLabel>Scroll speed ({field.value}s)</FormLabel>
               <FormControl>
-                <Slider min={10} max={60} step={1} value={[field.value]} onValueChange={(value) => field.onChange(value[0])} />
+                <Slider
+                  min={10}
+                  max={60}
+                  step={1}
+                  value={[field.value ?? 30]}
+                  onValueChange={(value) => field.onChange(value[0] ?? 30)}
+                />
               </FormControl>
             </FormItem>
           )} />

@@ -35,7 +35,7 @@ export default function AnnouncementMarquee({ messages, speed, textColor }: Anno
     if (prefersReducedMotion || messages.length <= 1) return;
 
     const displayMs = Math.min(Math.max(speed * 500, 3500), 8000);
-    let fadeTimer: ReturnType<typeof setTimeout> | undefined;
+    let fadeTimer: number | undefined;
 
     const timer = window.setInterval(() => {
       setVisible(false);

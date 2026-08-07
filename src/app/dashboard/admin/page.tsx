@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
+import type { Order, OrderItem } from "@prisma/client";
 import {
   AlertTriangle,
   ArrowUpRight,
@@ -25,6 +26,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/src/components/ui/table";
+
+/** `db.order` is loosely typed in `@/src/lib/db`; keep this page strictly typed. */
+type AdminDashboardOrder = Order & { items: OrderItem[] };
 
 const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
@@ -108,7 +112,8 @@ export default async function AdminDashboardPage() {
   const { usersCount, totalStores, activeStores, stores, productsCount, orders, pendingStores } =
     await getCachedAdminDashboardData();
 
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+  const recentOrders = orders as AdminDashboardOrder[];
+  const totalRevenue = recentOrders.reduce((sum, order) => sum + order.total, 0);
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -194,7 +199,7 @@ export default async function AdminDashboardPage() {
             </Button>
           </CardHeader>
           <CardContent>
-            {orders.length === 0 ? (
+            {recentOrders.length === 0 ? (
               <div className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
                 No orders yet.
               </div>
@@ -209,7 +214,7 @@ export default async function AdminDashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orders.map((order) => (
+                  {recentOrders.map((order) => (
                     <TableRow key={order.id}>
                       <TableCell className="font-medium">{order.orderNumber}</TableCell>
                       <TableCell>

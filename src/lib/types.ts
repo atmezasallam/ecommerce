@@ -116,12 +116,31 @@ export type ProductType = Prisma.PromiseReturnType<
 >["products"][0];
 
 
+/** Minimal image shape used on product cards (full Prisma rows or card helpers). */
+export type ProductCardImage = {
+  id: string;
+  url: string;
+  productVariantId?: string;
+  alt?: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+/** Size fields required for product card pricing UI. */
+export type ProductCardSize = Pick<
+  Size,
+  "id" | "size" | "quantity" | "price" | "discount" | "productVariantId"
+> & {
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
 export type VariantSimplified = {
   variantId: string;
   variantSlug: string;
   variantName: string;
-  images: ProductVariantImage[];
-  sizes: Size[];
+  images: ProductCardImage[];
+  sizes: ProductCardSize[];
 };
 
 
