@@ -52,12 +52,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  stores Store[] @relation("UserStores")
-  following         Store[]           @relation("UserFollowingStore")
-   reviews           Review[]          @relation("ReviewToUser")
-  wishlist          Wishlist?
+  stores             Store[]        @relation("UserStores")
+  following          Store[]        @relation("UserFollowingStore")
+  reviews            Review[]       @relation("ReviewToUser")
+  wishlist           Wishlist?
   buyerConversations Conversation[] @relation("BuyerConversations")
-  orders            Order[]         @relation("UserOrders")
+  orders             Order[]        @relation("UserOrders")
 }
 
 model Category {
@@ -110,29 +110,30 @@ model Store {
   status                              StoreStatus @default(PENDING)
   averageRating                       Float       @default(0)
   featured                            Boolean     @default(false)
-  returnPolicy                        String    @default("Return in 30 days.")
-  defaultShippingService              String     @default("International Delivery")
-  defaultShippingFeePerItem           Float     @default(0)
-  defaultShippingFeeForAdditionalItem Float     @default(0)
-  defaultShippingFeePerKg             Float      @default(0)
-  defaultShippingFeeFixed             Float      @default(0)
-  defaultDeliveryTimeMin              Int       @default(7)
-  defaultDeliveryTimeMax              Int       @default(31)
+  returnPolicy                        String      @default("Return in 30 days.")
+  defaultShippingService              String      @default("International Delivery")
+  defaultShippingFeePerItem           Float       @default(0)
+  defaultShippingFeeForAdditionalItem Float       @default(0)
+  defaultShippingFeePerKg             Float       @default(0)
+  defaultShippingFeeFixed             Float       @default(0)
+  defaultDeliveryTimeMin              Int         @default(7)
+  defaultDeliveryTimeMax              Int         @default(31)
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   userId    String
-  user      User      @relation("UserStores", fields: [userId], references: [id])
+  user      User     @relation("UserStores", fields: [userId], references: [id])
 
-
-  products  Product[] @relation("StoreToProduct")
-  cartItems CartItem[]
+  products      Product[]      @relation("StoreToProduct")
+  cartItems     CartItem[]
   shippingRates ShippingRate[] @relation("StoreShippingRates")
   followers     User[]         @relation("UserFollowingStore")
   conversations Conversation[] @relation("StoreConversations")
-  coupons     Coupon[]
+  coupons       Coupon[]
 
   @@index([userId])
+  @@index([status])
+  @@index([featured])
 }
 
 model Coupon {
@@ -147,7 +148,7 @@ model Coupon {
   isGlobal  Boolean  @default(false)
 
   storeId String?
-  store   Store?   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  store   Store?  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   carts Cart[]
 
@@ -159,28 +160,24 @@ model Coupon {
   @@index([isGlobal, code])
 }
 
-
 enum ShippingFeeMethod {
   ITEM
   WEIGHT
   FIXED
 }
 
-
-
-
 model Product {
-  id          String @id @default(uuid())
-  name        String
-  description String @db.LongText
-  slug        String @unique
-  brand       String
-  rating      Float  @default(0)
-  sales       Int     @default(0)
-  views       Int     @default(0)
-  numReviews  Int     @default(0)
+  id                String            @id @default(uuid())
+  name              String
+  description       String            @db.LongText
+  slug              String            @unique
+  brand             String
+  rating            Float             @default(0)
+  sales             Int               @default(0)
+  views             Int               @default(0)
+  numReviews        Int               @default(0)
   shippingFeeMethod ShippingFeeMethod @default(ITEM)
-  isArchived  Boolean @default(false)
+  isArchived        Boolean           @default(false)
 
   freeShipping FreeShipping? @relation("ProductFreeShipping")
 
@@ -190,13 +187,13 @@ model Product {
   storeId String
   store   Store  @relation("StoreToProduct", fields: [storeId], references: [id])
 
-  variants  ProductVariant[] @relation("ProductToProductVariant")
-  cartItems CartItem[]
-  specs     Spec[]           @relation("ProductSpec")
-  questions Question[]       @relation("ProductQuestion")
-  reviews           Review[]          @relation("ReviewToProduct")
-  wishlistItems     WishlistItem[]
-  conversations     Conversation[] @relation("ProductConversations")
+  variants      ProductVariant[] @relation("ProductToProductVariant")
+  cartItems     CartItem[]
+  specs         Spec[]           @relation("ProductSpec")
+  questions     Question[]       @relation("ProductQuestion")
+  reviews       Review[]         @relation("ReviewToProduct")
+  wishlistItems WishlistItem[]
+  conversations Conversation[]   @relation("ProductConversations")
 
   categoryId String
   category   Category @relation("CategoryToProduct", fields: [categoryId], references: [id])
@@ -211,6 +208,9 @@ model Product {
   @@index([categoryId])
   @@index([subCategoryId])
   @@index([offerTagId])
+  @@index([isArchived])
+  @@index([storeId, isArchived])
+  @@index([categoryId, isArchived])
 }
 
 model ProductVariant {
@@ -223,18 +223,17 @@ model ProductVariant {
   saleEndDate        String?
   keywords           String
   sku                String
-  sales       Int     @default(0)
-  weight      Float
+  sales              Int     @default(0)
+  weight             Float
 
   productId String
   product   Product @relation("ProductToProductVariant", fields: [productId], references: [id])
 
-  sizes  Size[]                @relation("ProductVariantSizes")
-  images ProductVariantImage[] @relation("ProductVariantToVariantImage")
-  colors Color[]               @relation("productVariantColors")
-  cartItems CartItem[]
+  sizes         Size[]                @relation("ProductVariantSizes")
+  images        ProductVariantImage[] @relation("ProductVariantToVariantImage")
+  colors        Color[]               @relation("productVariantColors")
+  cartItems     CartItem[]
   wishlistItems WishlistItem[]
-
 
   specs Spec[] @relation("ProductVariantSpec")
 
@@ -331,21 +330,17 @@ model OfferTag {
   updatedAt DateTime @updatedAt
 }
 
-
 model Country {
   id   String @id @default(uuid())
   name String @unique
   code String @unique
 
-  shippingRates         ShippingRate[]        @relation("CountryShippingRates") 
+  shippingRates         ShippingRate[]        @relation("CountryShippingRates")
   freeShippingCountries FreeShippingCountry[] @relation("FreeShippingToCountry")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
-
-
-
 
 model ShippingRate {
   id String @id @default(uuid())
@@ -370,9 +365,8 @@ model ShippingRate {
 
   @@index([countryId])
   @@index([storeId])
+  @@index([storeId, countryId])
 }
-
-
 
 model FreeShipping {
   id        String  @id @default(uuid())
@@ -384,7 +378,6 @@ model FreeShipping {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
-
 
 model FreeShippingCountry {
   id String @id @default(uuid())
@@ -401,7 +394,6 @@ model FreeShippingCountry {
   @@index([freeShippingId])
   @@index([countryId])
 }
-
 
 model Review {
   id       String @id @default(uuid())
@@ -428,7 +420,6 @@ model Review {
   @@index([productId])
 }
 
-
 model ReviewImage {
   id  String @id @default(uuid())
   url String
@@ -444,39 +435,40 @@ model ReviewImage {
 }
 
 model Cart {
-  id        String     @id @default(uuid())
-  userId    String     @unique
-  items     CartItem[]
-  couponId  String?
-  coupon    Coupon?    @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  id       String     @id @default(uuid())
+  userId   String     @unique
+  items    CartItem[]
+  couponId String?
+  coupon   Coupon?    @relation(fields: [couponId], references: [id], onDelete: SetNull)
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([couponId])
 }
 
 model CartItem {
-  id        String   @id @default(uuid())
+  id        String         @id @default(uuid())
   cartId    String
-  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
   variantId String
   variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
   sizeId    String
-  size      Size     @relation(fields: [sizeId], references: [id], onDelete: Cascade)
+  size      Size           @relation(fields: [sizeId], references: [id], onDelete: Cascade)
   storeId   String
-  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  quantity  Int      @default(1)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  store     Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  quantity  Int            @default(1)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
   @@unique([cartId, variantId, sizeId])
   @@index([cartId])
   @@index([productId])
   @@index([variantId])
   @@index([sizeId])
+  @@index([storeId])
 }
 
 model Order {
@@ -510,6 +502,10 @@ model Order {
 
   @@index([userId])
   @@index([stripePaymentIntentId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([createdAt])
+  @@index([userId, createdAt])
 }
 
 model OrderItem {
@@ -550,14 +546,14 @@ model Wishlist {
 }
 
 model WishlistItem {
-  id         String   @id @default(uuid())
+  id         String         @id @default(uuid())
   wishlistId String
-  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  wishlist   Wishlist       @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
   productId  String
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product    Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
   variantId  String
   variant    ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  createdAt  DateTime       @default(now())
 
   @@unique([wishlistId, variantId])
   @@index([wishlistId])
@@ -567,13 +563,13 @@ model WishlistItem {
 
 /// productKey: productId when set, else "__general__" (reliable @@unique on MySQL vs nullable productId).
 model Conversation {
-  id       String @id @default(uuid())
-  buyerId  String
-  buyer    User   @relation("BuyerConversations", fields: [buyerId], references: [id], onDelete: Cascade)
-  storeId  String
-  store    Store  @relation("StoreConversations", fields: [storeId], references: [id], onDelete: Cascade)
-  productId String?
-  product   Product? @relation("ProductConversations", fields: [productId], references: [id], onDelete: SetNull)
+  id         String   @id @default(uuid())
+  buyerId    String
+  buyer      User     @relation("BuyerConversations", fields: [buyerId], references: [id], onDelete: Cascade)
+  storeId    String
+  store      Store    @relation("StoreConversations", fields: [storeId], references: [id], onDelete: Cascade)
+  productId  String?
+  product    Product? @relation("ProductConversations", fields: [productId], references: [id], onDelete: SetNull)
   productKey String
 
   messages      Message[]
@@ -608,55 +604,55 @@ model Message {
 }
 
 model Banner {
-  id          String       @id @default(uuid())
+  id          String  @id @default(uuid())
   title       String
   subtitle    String?
-  description String?      @db.Text
+  description String? @db.Text
 
   image       String
   mobileImage String?
-  bgColor     String       @default("#000000")
-  textColor   String       @default("#ffffff")
+  bgColor     String  @default("#000000")
+  textColor   String  @default("#ffffff")
 
-  ctaText     String?
-  ctaLink     String?
-  ctaStyle    String       @default("outline")
+  ctaText  String?
+  ctaLink  String?
+  ctaStyle String  @default("outline")
 
-  type        BannerType   @default(HERO)
-  status      BannerStatus @default(INACTIVE)
-  position    Int          @default(0)
+  type     BannerType   @default(HERO)
+  status   BannerStatus @default(INACTIVE)
+  position Int          @default(0)
 
-  startDate   DateTime?
-  endDate     DateTime?
+  startDate DateTime?
+  endDate   DateTime?
 
-  clicks      Int          @default(0)
-  impressions Int          @default(0)
+  clicks      Int @default(0)
+  impressions Int @default(0)
 
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-}
-
-model AnnouncementBar {
-  id        String   @id @default(uuid())
-  messages  String   @db.Text
-  bgColor   String   @default("#0f172a")
-  textColor String   @default("#ffffff")
-  speed     Int      @default(30)
-  isActive  Boolean  @default(false)
-  showFrom  DateTime?
-  showUntil DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+model AnnouncementBar {
+  id        String    @id @default(uuid())
+  messages  String    @db.Text
+  bgColor   String    @default("#0f172a")
+  textColor String    @default("#ffffff")
+  speed     Int       @default(30)
+  isActive  Boolean   @default(false)
+  showFrom  DateTime?
+  showUntil DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
 /// Homepage “Brands just for you” carousel; managed under /dashboard/admin/homepage-brands.
 model HomepageBrand {
-  id        String   @id @default(uuid())
-  name      String
-  logo      String
-  href      String   @default("/browse")
-  position  Int      @default(0)
-  isActive  Boolean  @default(true)
+  id       String  @id @default(uuid())
+  name     String
+  logo     String
+  href     String  @default("/browse")
+  position Int     @default(0)
+  isActive Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
