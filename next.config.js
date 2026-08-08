@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
-// Dev port is fixed to 3000 via `npm run dev` → scripts/dev.sh (`next dev -p 3000`).
-// Next.js does not support setting the dev server port in this file; use the CLI flag or PORT when starting.
-//
-// Dev 404 on /_next/static/chunks/main-app.js: stale .next after `next build`. Run `npm run clean:next` or restart via dev:win / scripts/dev.sh (they remove .next first).
+// If /_next/static assets 404 after switching between `next build` and `next dev`,
+// delete the stale cache: `node scripts/clean-next.cjs`
 const nextConfig = {
   experimental: {
     optimizePackageImports: [

@@ -3,17 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "bash scripts/dev.sh",
-    "dev:clean": "node scripts/clean-next.cjs && bash scripts/dev.sh",
-    "clean:next": "node scripts/clean-next.cjs",
-    "dev:win": "kill-port 3000 && bunx next dev -p 3000",
-    "dev:win:clean": "kill-port 3000 && node scripts/clean-next.cjs && bunx next dev -p 3000",
-    "dev:win:turbo": "kill-port 3000 && bunx next dev --turbo -p 3000",
-    "killport": "fuser -k 3000/tcp 2>/dev/null || true; echo 'Port 3000 freed'",
-    "killport:win": "kill-port 3000 && echo 'Port 3000 freed'",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "test": "echo \"No tests configured yet\" && exit 0",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "bun prisma/seed-banners.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.35.2",
@@ -101,8 +100,8 @@
     "autoprefixer": "^10.4.22",
     "eslint": "^9",
     "eslint-config-next": "14.2.33",
-    "kill-port": "^2.0.1",
     "postcss": "^8.5.6",
+    "prettier": "^3.6.2",
     "prisma": "5.19.1",
     "tailwindcss": "^4.1.17",
     "typescript": "^5"
