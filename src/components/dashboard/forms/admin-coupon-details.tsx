@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/src/components/ui/select";
 import { Switch } from "@/src/components/ui/switch";
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 
 function toDatetimeLocalValue(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -48,7 +48,6 @@ type AdminCouponDetailsProps = {
 
 export default function AdminCouponDetails({ stores, coupon }: AdminCouponDetailsProps) {
   const router = useRouter();
-  const { toast } = useToast();
   const [pending, startTransition] = useTransition();
   const isEdit = Boolean(coupon);
 
@@ -88,7 +87,7 @@ export default function AdminCouponDetails({ stores, coupon }: AdminCouponDetail
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!scopeGlobal && !storeId) {
-      toast({ title: "Select a store", description: "Or enable platform-wide coupon.", variant: "destructive" });
+      toast.error("Select a store", { description: "Or enable platform-wide coupon." });
       return;
     }
     startTransition(async () => {
@@ -104,11 +103,11 @@ export default function AdminCouponDetails({ stores, coupon }: AdminCouponDetail
           isActive,
         });
         if (res.success) {
-          toast({ title: "Discount updated" });
+          toast.success("Discount updated");
           router.push("/dashboard/admin/coupons");
           router.refresh();
         } else {
-          toast({ title: "Error", description: res.message, variant: "destructive" });
+          toast.error("Error", { description: res.message });
         }
         return;
       }
@@ -124,11 +123,11 @@ export default function AdminCouponDetails({ stores, coupon }: AdminCouponDetail
         isActive,
       });
       if (res.success) {
-        toast({ title: "Coupon created" });
+        toast.success("Coupon created");
         router.push("/dashboard/admin/coupons");
         router.refresh();
       } else {
-        toast({ title: "Error", description: res.message, variant: "destructive" });
+        toast.error("Error", { description: res.message });
       }
     });
   };

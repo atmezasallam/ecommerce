@@ -26,7 +26,6 @@ import {
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 
-import { useToast } from "@/src/components/ui/use-toast";
 
 import {
   BadgeCheck,
@@ -114,7 +113,6 @@ interface CellActionsProps {
 
 const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
   const router = useRouter();
 
   if (!rowData || !rowData.id) return null;
@@ -252,7 +250,7 @@ import {
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 
 import {
   BadgeCheck,
@@ -336,7 +334,6 @@ interface CellActionsProps {
 
 const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
   const router = useRouter();
 
   if (!rowData || !rowData.id) return null;
@@ -355,17 +352,14 @@ const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
         throw new Error(data?.message || "Failed to delete sub-category");
       }
 
-      toast({
-        title: "Deleted sub-category",
+      toast.success("Deleted sub-category", {
         description: "The sub-category has been deleted.",
       });
 
       router.refresh();
     } catch (error: any) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: error?.message || "Something went wrong",
-        variant: "destructive",
       });
     } finally {
       setLoading(false);

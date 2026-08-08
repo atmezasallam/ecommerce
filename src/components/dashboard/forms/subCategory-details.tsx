@@ -52,7 +52,7 @@ import { upsertSubCategory } from "@/src/queries/subCategory";
 
 // Utils
 import { v4 } from "uuid";
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 interface SubCategoryDetailsProps {
@@ -67,7 +67,6 @@ const SubCategoryDetails: FC<SubCategoryDetailsProps> = ({
   data,
   categories,
 }) => {
-  const { toast } = useToast();
   const router = useRouter();
 
   const form = useForm<SubCategoryFormValues>({
@@ -109,11 +108,11 @@ const SubCategoryDetails: FC<SubCategoryDetailsProps> = ({
         categoryId: values.categoryId,
       });
 
-      toast({
-        title: data?.id
+      toast.success(
+        data?.id
           ? "Sub-category has been updated."
-          : `Congratulations! '${response?.name}' is now created.`,
-      });
+          : `Congratulations! '${response?.name}' is now created.`
+      );
 
       if (data?.id) {
         router.refresh();
@@ -122,9 +121,7 @@ const SubCategoryDetails: FC<SubCategoryDetailsProps> = ({
       }
     } catch (error: any) {
       console.log(error);
-      toast({
-        variant: "destructive",
-        title: "Oops!",
+      toast.error("Oops!", {
         description: error.toString(),
       });
     }

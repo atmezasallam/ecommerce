@@ -28,7 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import { Switch } from "@/src/components/ui/switch";
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 import { MoreHorizontal, Trash } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -54,7 +54,6 @@ function statusLabel(row: SellerCouponRow, now: Date): string {
 function CouponActiveSwitch({ row }: { row: SellerCouponRow }) {
   const params = useParams<{ storeUrl: string }>();
   const router = useRouter();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [checked, setChecked] = useState(row.isActive);
 
@@ -68,10 +67,8 @@ function CouponActiveSwitch({ row }: { row: SellerCouponRow }) {
         const res = await setSellerCouponActive(params.storeUrl, row.id, next);
         if (!res.success) {
           setChecked(!next);
-          toast({
-            title: "Update failed",
+          toast.error("Update failed", {
             description: res.message,
-            variant: "destructive",
           });
         } else {
           router.refresh();
@@ -86,7 +83,6 @@ function CouponActiveSwitch({ row }: { row: SellerCouponRow }) {
 const CellActions = ({ row }: { row: SellerCouponRow }) => {
   const params = useParams<{ storeUrl: string }>();
   const router = useRouter();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   return (
@@ -123,13 +119,11 @@ const CellActions = ({ row }: { row: SellerCouponRow }) => {
               setLoading(true);
               const res = await deleteSellerCoupon(params.storeUrl, row.id);
               if (res.success) {
-                toast({ title: "Coupon deleted" });
+                toast.success("Coupon deleted");
                 router.refresh();
               } else {
-                toast({
-                  title: "Error",
+                toast.error("Error", {
                   description: res.message,
-                  variant: "destructive",
                 });
               }
               setLoading(false);

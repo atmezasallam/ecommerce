@@ -8,7 +8,7 @@ import { Button } from "@/src/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 
 function toDatetimeLocalValue(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -21,7 +21,6 @@ type AddCouponFormProps = {
 
 export default function AddCouponForm({ storeUrl }: AddCouponFormProps) {
   const router = useRouter();
-  const { toast } = useToast();
   const [pending, startTransition] = useTransition();
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
@@ -44,16 +43,14 @@ export default function AddCouponForm({ storeUrl }: AddCouponFormProps) {
         endDateIso: new Date(end).toISOString(),
       });
       if (res.success) {
-        toast({ title: "Coupon created", description: "Shoppers can use this code at checkout." });
+        toast.success("Coupon created", { description: "Shoppers can use this code at checkout." });
         setCode("");
         setName("");
         setDiscount("10");
         router.refresh();
       } else {
-        toast({
-          title: "Could not create coupon",
+        toast.error("Could not create coupon", {
           description: res.message ?? "Try again.",
-          variant: "destructive",
         });
       }
     });

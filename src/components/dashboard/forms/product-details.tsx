@@ -51,7 +51,7 @@ import { upsertProduct } from "@/src/queries/product";
 
 // Utils
 import { v4 } from "uuid";
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 // Types
@@ -94,7 +94,6 @@ type CategoryFormValues = z.input<typeof ProductFormSchema>;
     categories,
     storeUrl,
    }) => {
-  const { toast } = useToast();//hook for display toast messages
   const router = useRouter();//hook for routing
 
   //state for subcategory
@@ -259,36 +258,28 @@ const handleSubmit = async (values: CategoryFormValues) => {
 
     // Validate required fields before submission
     if (!productName) {
-      toast({
-        variant: "destructive",
-        title: "Validation Error",
+      toast.error("Validation Error", {
         description: "Product name is required and cannot be empty.",
       });
       form.setFocus("name");
       return;
     }
     if (!variantName) {
-      toast({
-        variant: "destructive",
-        title: "Validation Error",
+      toast.error("Validation Error", {
         description: "Variant name is required and cannot be empty.",
       });
       form.setFocus("variantName");
       return;
     }
     if (!brand) {
-      toast({
-        variant: "destructive",
-        title: "Validation Error",
+      toast.error("Validation Error", {
         description: "Product brand is required and cannot be empty.",
       });
       form.setFocus("brand");
       return;
     }
     if (!sku) {
-      toast({
-        variant: "destructive",
-        title: "Validation Error",
+      toast.error("Validation Error", {
         description: "Product SKU is required and cannot be empty.",
       });
       form.setFocus("sku");
@@ -327,18 +318,16 @@ const handleSubmit = async (values: CategoryFormValues) => {
 
   );
     //display success message
-    toast({
-      title: data?.productId && data?.variantId
+    toast.success(
+      data?.productId && data?.variantId
         ? "Product has been updated."
-        : `Congratulations! '${productName}' is now created.`,
-    });
+        : `Congratulations! '${productName}' is now created.`
+    );
 
     router.push(`/dashboard/seller/stores/${storeUrl}/products`);
   } catch (error: any) {
     console.log(error);
-    toast({
-      variant: "destructive",
-      title: "Oops!",
+    toast.error("Oops!", {
       description: error.toString(),
     });
   }
@@ -385,9 +374,7 @@ const handleSubmit = async (values: CategoryFormValues) => {
                 handleSubmit,
                 (errors) => {
                   console.log("FORM VALIDATION ERRORS:", errors);
-                  toast({
-                    variant: "destructive",
-                    title: "Validation Error",
+                  toast.error("Validation Error", {
                     description: "Please fill in all required fields correctly. Check the form for errors.",
                   });
                 }
@@ -448,10 +435,8 @@ const handleSubmit = async (values: CategoryFormValues) => {
                                 });
                                 // Check if we already have 6 images
                                 if (images.length >= 6) {
-                                  toast({
-                                    title: "Maximum images reached",
+                                  toast.error("Maximum images reached", {
                                     description: "You can upload a maximum of 6 images.",
-                                    variant: "destructive",
                                   });
                                   return;
                                 }

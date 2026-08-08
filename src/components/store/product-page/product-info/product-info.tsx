@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Dispatch, FC, SetStateAction } from "react";
 import { ShoppingCart } from "lucide-react";
 import { CopyIcon } from "@/src/components/store/icons";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import StarRating from "@/src/components/store/shared/star-rating";
 import ProductPrice from "./product-price";
 import Countdown from "../../shared/countdown";

@@ -32,7 +32,6 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 
 // Hooks and utilities
-import { useToast } from "@/src/components/ui/use-toast";
 import { useModal } from "@/src/providers/modal.provider";
 
 // Lucide icons
@@ -125,7 +124,6 @@ const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
   // Hooks
   const { setOpen, setClose } = useModal();
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
   const router = useRouter();
 
   // Return null if rowData or rowData.id don't exist
@@ -239,7 +237,7 @@ import {
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 
 import {
   BadgeCheck,
@@ -316,7 +314,6 @@ interface CellActionsProps {
 
 const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
   const router = useRouter();
 
   if (!rowData || !rowData.id) return null;
@@ -335,17 +332,14 @@ const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
         throw new Error(data?.message || "Failed to delete category");
       }
 
-      toast({
-        title: "Deleted category",
+      toast.success("Deleted category", {
         description: "The category has been deleted.",
       });
 
       router.refresh();
     } catch (error: any) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: error?.message || "Something went wrong",
-        variant: "destructive",
       });
     } finally {
       setLoading(false);

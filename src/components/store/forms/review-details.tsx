@@ -9,7 +9,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import StarRating from "@/src/components/store/shared/star-rating";
 import { z } from "zod";
 import Select from "@/src/components/store/ui/select";

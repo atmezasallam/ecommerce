@@ -33,7 +33,7 @@ import { updateStoreDefaultShippingDetails } from "@/src/queries/store";
 
 // Utils
 import { v4 } from "uuid";
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 
 // Types
 import { StoreDefaultShippingType } from "@/src/lib/types";
@@ -48,7 +48,6 @@ const StoreDefaultShippingDetails: FC<StoreDefaultShippingDetailsProps> = ({
   storeUrl,
 }) => {
   // Initializing necessary hooks
-  const { toast } = useToast(); // Hook for displaying toast messages
   const router = useRouter(); // Hook for routing
 
   // Form hook for managing form state and validation
@@ -99,9 +98,7 @@ const StoreDefaultShippingDetails: FC<StoreDefaultShippingDetailsProps> = ({
 
       if (response.id) {
         // Displaying success message
-        toast({
-          title: "Store Default shipping details has been updated.",
-        });
+        toast.success("Store Default shipping details has been updated.");
 
         //Refresh data
         router.refresh();
@@ -109,9 +106,7 @@ const StoreDefaultShippingDetails: FC<StoreDefaultShippingDetailsProps> = ({
     } catch (error: any) {
       // Handling form submission errors
       console.log(error);
-      toast({
-        variant: "destructive",
-        title: "Oops!",
+      toast.error("Oops!", {
         description: error.toString(),
       });
     }

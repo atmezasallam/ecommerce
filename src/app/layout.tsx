@@ -16,8 +16,7 @@ import { ThemeProvider } from "next-themes";
 import {ClerkProvider,} from '@clerk/nextjs'
 
 //toast
-import {Toaster} from "@/src/components/ui/toaster";
-import{Toaster as SonnarToaster} from "@/src/components/ui/sonner";
+import { Toaster } from "@/src/components/ui/sonner";
 import CartMergeOnLogin from "@/src/components/cart/CartMergeOnLogin";
 import WishlistMergeOnLogin from "@/src/components/wishlist/WishlistMergeOnLogin";
 
@@ -63,8 +62,7 @@ export default function RootLayout({
           <CartMergeOnLogin />
           <WishlistMergeOnLogin />
           {children}
-          <Toaster/>
-          <SonnarToaster position="bottom-left"/>
+          <Toaster position="top-center" richColors closeButton />
         </ThemeProvider>
       </body>
     </html>

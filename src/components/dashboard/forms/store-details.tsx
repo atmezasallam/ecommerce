@@ -44,7 +44,7 @@ import { upsertStore } from "@/src/queries/store";
 
 // Utils
 import { v4 } from "uuid";
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 interface StoreDetailsProps {
@@ -56,7 +56,6 @@ interface StoreDetailsProps {
 type CategoryFormValues = z.input<typeof StoreFormSchema>;
 
 const StoreDetails: FC<StoreDetailsProps> = ({ data }) => {
-  const { toast } = useToast();
   const router = useRouter();
 
   // Form hook for managing form state and validation
@@ -117,11 +116,11 @@ const handleSubmit = async (values: CategoryFormValues) => {
       featured: values.featured,
     });
 
-    toast({
-      title: data?.id
+    toast.success(
+      data?.id
         ? "Store has been updated."
-        : `Congratulations! '${response?.name}' is now created.`,
-    });
+        : `Congratulations! '${response?.name}' is now created.`
+    );
 
     // 👇 هنا موضوع الـ redirect
     if (data?.id) {
@@ -131,9 +130,7 @@ const handleSubmit = async (values: CategoryFormValues) => {
     }
   } catch (error: any) {
     console.log(error);
-    toast({
-      variant: "destructive",
-      title: "Oops!",
+    toast.error("Oops!", {
       description: error.toString(),
     });
   }

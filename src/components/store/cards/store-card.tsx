@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 import MessageSellerButton from "@/src/components/messages/MessageSellerButton";
 

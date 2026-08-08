@@ -27,7 +27,7 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 
 // Hooks and utilities
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 
 
 // Lucide icons
@@ -179,7 +179,6 @@ const CellActions: React.FC<CellActionsProps> = ({
 }) => {
   // Hooks
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
   const router = useRouter();
 
   // Return null if rowData or rowData.id don't exist
@@ -233,16 +232,13 @@ const CellActions: React.FC<CellActionsProps> = ({
               try {
                 setLoading(true);
                 await deleteProduct(productId);
-                toast({
-                  title: "Deleted product",
+                toast.success("Deleted product", {
                   description: "The product has been deleted.",
                 });
                 router.refresh();
               } catch (error: any) {
-                toast({
-                  title: "Error",
+                toast.error("Error", {
                   description: error?.message || "Something went wrong",
-                  variant: "destructive",
                 });
               } finally {
                 setLoading(false);

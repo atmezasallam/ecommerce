@@ -37,7 +37,7 @@ import { upsertShippingRate } from "@/src/queries/store";
 
 // Utils
 import { v4 } from "uuid";
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { CountryWithShippingRatesType } from "@/src/lib/types";
 import { Textarea } from "@/src/components/ui/textarea";
@@ -53,7 +53,6 @@ const ShippingRateDetails: FC<ShippingRateDetailsProps> = ({
   storeUrl,
 }) => {
   // Initializing necessary hooks
-  const { toast } = useToast(); // Hook for displaying toast messages
   const router = useRouter(); // Hook for routing
   const { setClose } = useModal(); // Hook for closing modal
 
@@ -155,9 +154,7 @@ const ShippingRateDetails: FC<ShippingRateDetailsProps> = ({
 
       if (response.id) {
         // Displaying success message
-        toast({
-          title: "Shipping rates updated successfully!",
-        });
+        toast.success("Shipping rates updated successfully!");
 
         // Close the modal
         setClose();
@@ -168,9 +165,7 @@ const ShippingRateDetails: FC<ShippingRateDetailsProps> = ({
     } catch (error: any) {
       // Handling form submission errors
       console.log(error);
-      toast({
-        variant: "destructive",
-        title: "Oops!",
+      toast.error("Oops!", {
         description: error.toString(),
       });
     }

@@ -8,8 +8,6 @@ import { getCartItemCount } from "@/src/app/actions/cart.actions";
 import { getWishlistCount } from "@/src/app/actions/wishlist.actions";
 import { getTotalUnreadCount } from "@/src/app/actions/message.actions";
 
-import {Toaster} from "react-hot-toast";
-
 export default async function StoreLayout({ children }: { children: ReactNode }) {
   const [cartCount, wishlistCount, messageUnreadCount] = await Promise.all([
     getCartItemCount(),
@@ -27,7 +25,6 @@ export default async function StoreLayout({ children }: { children: ReactNode })
         <CategoriesHeader />
       <div>{children}</div>
       <Footer />
-      <Toaster position="top-center" />
     </div>
   );
 }

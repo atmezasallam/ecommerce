@@ -40,7 +40,7 @@ import { upsertOfferTag } from "@/src/queries/offerTag";
 
 // Utils
 import { v4 } from "uuid";
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 interface OfferTagDetailsProps {
@@ -51,7 +51,6 @@ interface OfferTagDetailsProps {
 type OfferTagFormValues = z.input<typeof OfferTagFormSchema>;
 
 const OfferTagDetails: FC<OfferTagDetailsProps> = ({ data }) => {
-  const { toast } = useToast();
   const router = useRouter();
 
   // Form hook for managing form state and validation
@@ -84,11 +83,11 @@ const OfferTagDetails: FC<OfferTagDetailsProps> = ({ data }) => {
         url: values.url,
       });
 
-      toast({
-        title: data?.id
+      toast.success(
+        data?.id
           ? "Offer tag has been updated."
-          : `Congratulations! '${response?.name}' is now created.`,
-      });
+          : `Congratulations! '${response?.name}' is now created.`
+      );
 
       // Navigate based on context
       if (data?.id) {
@@ -98,9 +97,7 @@ const OfferTagDetails: FC<OfferTagDetailsProps> = ({ data }) => {
       }
     } catch (error: any) {
       console.log(error);
-      toast({
-        variant: "destructive",
-        title: "Oops!",
+      toast.error("Oops!", {
         description: error?.message || error.toString(),
       });
     }

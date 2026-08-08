@@ -24,7 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 import { useModal } from "@/src/providers/modal.provider";
 import CustomModal from "@/src/components/dashboard/shared/custom-model";
 import OfferTagDetails from "@/src/components/dashboard/forms/offer-tag-details";
@@ -88,7 +88,6 @@ interface CellActionsProps {
 
 const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
   const router = useRouter();
   const { setOpen, setClose } = useModal();
 
@@ -100,17 +99,14 @@ const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
 
       await deleteOfferTag(rowData.id);
 
-      toast({
-        title: "Deleted offer tag",
+      toast.success("Deleted offer tag", {
         description: "The offer tag has been deleted successfully.",
       });
 
       router.refresh();
     } catch (error: any) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: error?.message || "Something went wrong",
-        variant: "destructive",
       });
     } finally {
       setLoading(false);

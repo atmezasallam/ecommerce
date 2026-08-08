@@ -43,7 +43,7 @@ import { upsertCategory } from "@/src/queries/category";
 
 // Utils
 import { v4 } from "uuid";
-import { useToast } from "@/src/components/ui/use-toast";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 interface CategoryDetailsProps {
@@ -55,7 +55,6 @@ interface CategoryDetailsProps {
 type CategoryFormValues = z.input<typeof CategoryFormSchema>;
 
 const CategoryDetails: FC<CategoryDetailsProps> = ({ data }) => {
-  const { toast } = useToast();
   const router = useRouter();
 
   // Form hook for managing form state and validation
@@ -99,11 +98,11 @@ const handleSubmit = async (values: CategoryFormValues) => {
       featured: values.featured,
     });
 
-    toast({
-      title: data?.id
+    toast.success(
+      data?.id
         ? "Category has been updated."
-        : `Congratulations! '${response?.name}' is now created.`,
-    });
+        : `Congratulations! '${response?.name}' is now created.`
+    );
 
     // 👇 هنا موضوع الـ redirect
     if (data?.id) {
@@ -113,9 +112,7 @@ const handleSubmit = async (values: CategoryFormValues) => {
     }
   } catch (error: any) {
     console.log(error);
-    toast({
-      variant: "destructive",
-      title: "Oops!",
+    toast.error("Oops!", {
       description: error.toString(),
     });
   }
