@@ -3,6 +3,10 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { db } from "@/src/lib/db";
+import {
+  processClerkWebhook,
+  type ClerkWebhookEvent,
+} from "@/src/lib/clerk-webhook";
 
 const webhookSecret = process.env.CLERK_WEBHOOK_SIGNING_SECRET!;
 
@@ -16,92 +20,66 @@ function resolveInitialRole(email: string): "ADMIN" | "USER" {
   return adminEmails.includes(email.trim().toLowerCase()) ? "ADMIN" : "USER";
 }
 
-/** Clerk webhook only: Svix verify + user.created / user.updated. */
+/** Clerk webhook only: Svix verify + idempotent user.created / user.updated. */
 export async function POST(req: Request) {
   const payload = await req.text();
   const headerPayload = headers();
 
-  const svixId = headerPayload.get("svix-id");
-  const svixTimestamp = headerPayload.get("svix-timestamp");
-  const svixSignature = headerPayload.get("svix-signature");
+  const result = await processClerkWebhook({
+    payload,
+    svixId: headerPayload.get("svix-id"),
+    svixTimestamp: headerPayload.get("svix-timestamp"),
+    svixSignature: headerPayload.get("svix-signature"),
+    deps: {
+      verify: (body, hdrs) => {
+        const wh = new Webhook(webhookSecret);
+        return wh.verify(body, hdrs) as ClerkWebhookEvent;
+      },
+      hasProcessed: async (id) => {
+        const existing = await db.webhookDelivery.findUnique({
+          where: { id },
+          select: { id: true },
+        });
+        return Boolean(existing);
+      },
+      markProcessed: async (id) => {
+        await db.webhookDelivery.create({
+          data: { id, source: "clerk" },
+        });
+      },
+      resolveInitialRole,
+      upsertUser: async (input) => {
+        await db.user.upsert({
+          where: { id: input.id },
+          update: {},
+          create: {
+            id: input.id,
+            name: input.name,
+            email: input.email,
+            image_url: input.image_url,
+            role: input.role,
+          },
+        });
+      },
+      updateUser: async (input) => {
+        await db.user.update({
+          where: { id: input.id },
+          data: {
+            name: input.name,
+            email: input.email,
+            image_url: input.image_url,
+          },
+        });
+      },
+    },
+  });
 
-  if (!svixId || !svixTimestamp || !svixSignature) {
-    return new NextResponse("Missing svix headers", { status: 400 });
-  }
-
-  let event: { type: string; data: Record<string, unknown> };
-
-  try {
-    const wh = new Webhook(webhookSecret);
-    event = wh.verify(payload, {
-      "svix-id": svixId,
-      "svix-timestamp": svixTimestamp,
-      "svix-signature": svixSignature,
-    }) as { type: string; data: Record<string, unknown> };
-  } catch (error) {
-    console.error("Invalid Clerk signature:", error);
-    return new NextResponse("Invalid signature", { status: 400 });
-  }
-
-  const eventType = event.type;
-  const data = event.data as {
-    id: string;
-    email_addresses?: { email_address?: string }[];
-    primary_email_address?: { email_address?: string };
-    first_name?: string;
-    last_name?: string;
-    image_url?: string;
-  };
-
-  try {
-    if (eventType === "user.created") {
-      const email =
-        data.email_addresses?.[0]?.email_address ??
-        data.primary_email_address?.email_address ??
-        "";
-
-      const name = `${data.first_name || ""}${
-        data.last_name ? ` ${data.last_name}` : ""
-      }`.trim();
-
-      const role = resolveInitialRole(email);
-
-      await db.user.upsert({
-        where: { id: data.id },
-        update: {},
-        create: {
-          id: data.id,
-          name,
-          email,
-          image_url: data.image_url,
-          role,
-        },
-      });
+  if (result.status === 400) {
+    if (result.body === "Invalid signature") {
+      console.error("Invalid Clerk signature");
     }
-
-    if (eventType === "user.updated") {
-      const email =
-        data.email_addresses?.[0]?.email_address ??
-        data.primary_email_address?.email_address ??
-        "";
-
-      const name = `${data.first_name || ""}${
-        data.last_name ? ` ${data.last_name}` : ""
-      }`.trim();
-
-      await db.user.update({
-        where: { id: data.id },
-        data: {
-          name,
-          email,
-          image_url: data.image_url,
-        },
-      });
-    }
-
-    return new NextResponse("OK", { status: 200 });
-  } catch (error) {
-    console.error("Clerk webhook DB error:", error);
-    return new NextResponse("Error", { status: 500 });
+    return new NextResponse(result.body, { status: 400 });
   }
+
+  return new NextResponse(result.body, { status: 200 });
 }

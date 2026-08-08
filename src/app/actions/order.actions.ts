@@ -12,6 +12,12 @@ import {
   type ShippingLineInput,
   type ShippingRateFees,
 } from "@/src/lib/authz-guards";
+import {
+  calcFinalPrice,
+  calculateCartTotals,
+  type CartCouponLike,
+} from "@/src/lib/cart-money";
+import { toStripeCents } from "@/src/lib/money";
 
 export type ShippingFormData = {
   fullName: string;
@@ -28,14 +34,7 @@ export type ShippingFormData = {
   countryId?: string;
 };
 
-type CartCoupon = {
-  discount: number;
-  isGlobal: boolean;
-  storeId: string | null;
-  isActive: boolean;
-  startDate: Date;
-  endDate: Date;
-};
+type CartCoupon = CartCouponLike;
 
 type CartCheckoutItem = {
   productId: string;
@@ -69,54 +68,6 @@ type CartWithCheckoutItems = {
   userId: string;
   items: CartCheckoutItem[];
   coupon: CartCoupon | null;
-};
-
-const calcFinalPrice = (price: number, discount: number) =>
-  price - (price * discount) / 100;
-
-const isCouponActive = (coupon: {
-  isActive: boolean;
-  startDate: Date;
-  endDate: Date;
-  isGlobal: boolean;
-  storeId: string | null;
-}) => {
-  const now = new Date();
-  return coupon.isActive && coupon.startDate <= now && coupon.endDate >= now;
-};
-
-const calculateCartTotals = (
-  items: Array<{
-    storeId: string;
-    quantity: number;
-    size: { price: number; discount: number };
-  }>,
-  coupon?: CartCoupon | null,
-  shippingTotal = 0
-) => {
-  const subtotal = items.reduce((acc, item) => {
-    return acc + calcFinalPrice(item.size.price, item.size.discount) * item.quantity;
-  }, 0);
-
-  let discountTotal = 0;
-  if (coupon && isCouponActive(coupon)) {
-    const eligibleSubtotal = coupon.isGlobal
-      ? subtotal
-      : items
-          .filter((item) => item.storeId === coupon.storeId)
-          .reduce(
-            (acc, item) =>
-              acc + calcFinalPrice(item.size.price, item.size.discount) * item.quantity,
-            0
-          );
-    discountTotal = (eligibleSubtotal * coupon.discount) / 100;
-  }
-
-  const discountedSubtotal = Math.max(0, subtotal - discountTotal);
-  const taxTotal = discountedSubtotal * 0.08;
-  const total = discountedSubtotal + shippingTotal + taxTotal;
-
-  return { subtotal, discountTotal, shippingTotal, taxTotal, total };
 };
 
 async function resolveCountryId(
@@ -272,7 +223,7 @@ export async function createPaymentIntent(shippingData: ShippingFormData) {
   const totals = calculateCartTotals(typedCart.items, typedCart.coupon, shippingTotal);
 
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: Math.round(totals.total * 100),
+    amount: toStripeCents(totals.total),
     currency: "usd",
     metadata: {
       userId,

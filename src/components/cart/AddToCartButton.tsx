@@ -112,7 +112,17 @@ export default function AddToCartButton({
   }
 
   return (
-    <Button onClick={onClick} className={cn("w-full min-w-[200px]", className)}>
+    <Button
+      onClick={onClick}
+      data-e2e-cart-payload={JSON.stringify({
+        productId,
+        variantId,
+        sizeId,
+        storeId,
+        quantity: 1,
+      })}
+      className={cn("w-full min-w-[200px]", className)}
+    >
       <ShoppingCart className="mr-2 h-4 w-4" />
       Add to Cart
     </Button>

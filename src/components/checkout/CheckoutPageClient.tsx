@@ -30,19 +30,9 @@ import {
 import CheckoutOrderSummary from "@/src/components/checkout/CheckoutOrderSummary";
 import StripePaymentForm from "@/src/components/checkout/StripePaymentForm";
 
-const shippingSchema = z.object({
-  fullName: z.string().min(2),
-  email: z.string().email(),
-  phone: z.string().min(8),
-  address: z.string().min(5),
-  city: z.string().min(2),
-  state: z.string().optional(),
-  zipCode: z.string().min(3),
-  country: z.string().min(2),
-  saveAddress: z.boolean(),
-});
+import { CheckoutShippingSchema } from "@/src/lib/checkout-schema";
 
-type ShippingFormSchema = z.infer<typeof shippingSchema>;
+type ShippingFormSchema = z.infer<typeof CheckoutShippingSchema>;
 
 type DeliveryOption = {
   id: "standard" | "express" | "next_day";
@@ -93,7 +83,7 @@ export default function CheckoutPageClient({ cart, user }: CheckoutPageClientPro
   const [isLoadingIntent, setIsLoadingIntent] = useState(false);
 
   const form = useForm<ShippingFormSchema>({
-    resolver: zodResolver(shippingSchema),
+    resolver: zodResolver(CheckoutShippingSchema),
     defaultValues: {
       fullName: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
       email: user.emailAddresses[0]?.emailAddress ?? "",
