@@ -143,7 +143,6 @@ export default function CheckoutPageClient({ cart, user }: CheckoutPageClientPro
     const payload: ShippingFormData = {
       ...form.getValues(),
       deliveryMethod: delivery.id,
-      deliveryPrice: delivery.price,
     };
 
     try {

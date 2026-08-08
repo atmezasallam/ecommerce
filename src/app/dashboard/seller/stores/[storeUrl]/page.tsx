@@ -38,6 +38,7 @@ const statusClass: Record<string, string> = {
   PAYMENT_FAILED: "bg-red-500/10 text-red-700 border-red-500/20",
   PROCESSING: "bg-[#95CFB2]/10 text-blue-700 border-[#95CFB2]/20",
   SHIPPED: "bg-purple-500/10 text-purple-700 border-purple-500/20",
+  PARTIALLY_SHIPPED: "bg-indigo-500/10 text-indigo-700 border-indigo-500/20",
   DELIVERED: "bg-green-500/10 text-green-700 border-green-500/20",
   CANCELLED: "bg-red-500/10 text-red-700 border-red-500/20",
   REFUNDED: "bg-orange-500/10 text-orange-700 border-orange-500/20",
@@ -162,7 +163,7 @@ export default async function SellerStorePage({
   const recentOrders = allOrders.slice(0, 8);
   const totalOrders = allOrders.length;
   const pendingOrders = allOrders.filter((order) =>
-    ["PENDING_PAYMENT", "PROCESSING", "SHIPPED"].includes(order.status)
+    ["PENDING_PAYMENT", "PROCESSING", "SHIPPED", "PARTIALLY_SHIPPED"].includes(order.status)
   ).length;
 
   const lowStockRows = storeProducts

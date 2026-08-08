@@ -10,6 +10,7 @@ type OrderStatus =
   | "PAYMENT_FAILED"
   | "PROCESSING"
   | "SHIPPED"
+  | "PARTIALLY_SHIPPED"
   | "DELIVERED"
   | "CANCELLED"
   | "REFUNDED";
@@ -31,6 +32,7 @@ export async function updateOrderStatus(formData: FormData): Promise<void> {
     status !== "PAYMENT_FAILED" &&
     status !== "PROCESSING" &&
     status !== "SHIPPED" &&
+    status !== "PARTIALLY_SHIPPED" &&
     status !== "DELIVERED" &&
     status !== "CANCELLED" &&
     status !== "REFUNDED"

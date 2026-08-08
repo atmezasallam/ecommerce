@@ -3,8 +3,6 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { db } from "@/src/lib/db";
-import { deleteCategory } from "@/src/queries/category";
-import { deleteSubCategory } from "@/src/queries/subCategory";
 
 const webhookSecret = process.env.CLERK_WEBHOOK_SIGNING_SECRET!;
 
@@ -18,6 +16,7 @@ function resolveInitialRole(email: string): "ADMIN" | "USER" {
   return adminEmails.includes(email.trim().toLowerCase()) ? "ADMIN" : "USER";
 }
 
+/** Clerk webhook only: Svix verify + user.created / user.updated. */
 export async function POST(req: Request) {
   const payload = await req.text();
   const headerPayload = headers();
@@ -104,47 +103,5 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Clerk webhook DB error:", error);
     return new NextResponse("Error", { status: 500 });
-  }
-}
-
-export async function DELETE(req: Request) {
-  try {
-    const url = new URL(req.url);
-    const categoryId = url.searchParams.get("categoryId");
-    const subCategoryId = url.searchParams.get("subCategoryId");
-
-    if (!categoryId && !subCategoryId) {
-      return NextResponse.json(
-        { success: false, message: "Missing categoryId or subCategoryId" },
-        { status: 400 }
-      );
-    }
-
-    if (subCategoryId) {
-      await deleteSubCategory(subCategoryId);
-      return NextResponse.json(
-        { success: true, message: "Sub-category deleted" },
-        { status: 200 }
-      );
-    }
-
-    if (categoryId) {
-      await deleteCategory(categoryId);
-      return NextResponse.json(
-        { success: true, message: "Category deleted" },
-        { status: 200 }
-      );
-    }
-  } catch (error: unknown) {
-    console.error("DELETE /api/webhooks ERROR:", error);
-
-    return NextResponse.json(
-      {
-        success: false,
-        message:
-          error instanceof Error ? error.message : "Failed to delete record",
-      },
-      { status: 500 }
-    );
   }
 }

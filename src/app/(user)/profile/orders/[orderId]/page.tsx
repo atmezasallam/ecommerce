@@ -20,9 +20,17 @@ const stepByStatus: Record<string, number> = {
   PAYMENT_FAILED: 1,
   PROCESSING: 3,
   SHIPPED: 4,
+  PARTIALLY_SHIPPED: 4,
   DELIVERED: 5,
   CANCELLED: 1,
   REFUNDED: 5,
+};
+
+const fulfillmentClass: Record<string, string> = {
+  PROCESSING: "bg-[#95CFB2]/15 text-[#95CFB2] border-[#95CFB2]/20",
+  SHIPPED: "bg-purple-500/15 text-purple-600 border-purple-500/20",
+  DELIVERED: "bg-green-500/15 text-green-600 border-green-500/20",
+  CANCELLED: "bg-red-500/15 text-red-600 border-red-500/20",
 };
 
 export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
@@ -57,6 +65,8 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
       size: string;
       quantity: number;
       subtotal: number;
+      fulfillmentStatus: string;
+      trackingNumber: string | null;
     }>;
   };
   try {
@@ -132,6 +142,19 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                     {item.variantName} • {item.size}
                   </p>
                   <p className="text-sm text-muted-foreground">Qty {item.quantity}</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className={fulfillmentClass[item.fulfillmentStatus] ?? ""}
+                    >
+                      {item.fulfillmentStatus.replaceAll("_", " ")}
+                    </Badge>
+                    {item.trackingNumber ? (
+                      <span className="text-xs text-muted-foreground">
+                        Tracking: {item.trackingNumber}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
                 <p className="font-semibold">{currency.format(item.subtotal)}</p>
               </div>

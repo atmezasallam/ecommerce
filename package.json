@@ -9,10 +9,13 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "test": "echo \"No test runner configured yet\" && exit 1",
+    "test": "vitest run",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "bun prisma/seed-banners.ts"
+    "db:seed": "bun prisma/seed-banners.ts",
+    "db:seed:countries": "bunx tsx src/migration-scripts/seed-countries.ts",
+    "db:seed:offer-tags": "bunx tsx src/migration-scripts/seed-offer-tags.ts",
+    "db:seed:all": "bun run db:seed:countries && bun run db:seed:offer-tags && bun run db:seed"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.35.2",
@@ -104,7 +107,8 @@
     "prettier": "^3.6.2",
     "prisma": "5.19.1",
     "tailwindcss": "^4.1.17",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.4"
   },
   "overrides": {
     "baseline-browser-mapping": "2.11.12",

@@ -30,9 +30,17 @@ enum OrderStatus {
   PAYMENT_FAILED
   PROCESSING
   SHIPPED
+  PARTIALLY_SHIPPED
   DELIVERED
   CANCELLED
   REFUNDED
+}
+
+enum OrderItemFulfillmentStatus {
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
 
 enum PaymentStatus {
@@ -529,11 +537,15 @@ model OrderItem {
   subtotal      Float
   storeName     String
   storeId_      String
+  fulfillmentStatus    OrderItemFulfillmentStatus @default(PROCESSING)
+  fulfillmentUpdatedAt DateTime?
+  trackingNumber       String?
   createdAt     DateTime @default(now())
 
   @@index([orderId])
   @@index([productId])
   @@index([storeId])
+  @@index([storeId, fulfillmentStatus])
 }
 
 model Wishlist {

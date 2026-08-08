@@ -14,6 +14,7 @@ const statusColor: Record<string, string> = {
   PAYMENT_FAILED: "bg-red-500/15 text-red-600 border-red-500/20",
   PROCESSING: "bg-[#95CFB2]/15 text-[#95CFB2] border-[#95CFB2]/20",
   SHIPPED: "bg-purple-500/15 text-purple-600 border-purple-500/20",
+  PARTIALLY_SHIPPED: "bg-indigo-500/15 text-indigo-600 border-indigo-500/20",
   DELIVERED: "bg-green-500/15 text-green-600 border-green-500/20",
   CANCELLED: "bg-red-500/15 text-red-600 border-red-500/20",
   REFUNDED: "bg-orange-500/15 text-orange-600 border-orange-500/20",

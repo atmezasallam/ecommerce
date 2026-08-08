@@ -3,6 +3,7 @@
 
 import { currentUser } from "@clerk/nextjs/server";
 import { db } from "@/src/lib/db";
+import { assertCanUpdateStore } from "@/src/lib/authz-guards";
 import { StoreDefaultShippingType } from "@/src/lib/types";
 import { v4 } from "uuid";
 
@@ -81,7 +82,29 @@ export const upsertStore = async (data: UpsertStoreInput) => {
     },
   });
 
-  // 6️⃣ create / update store
+  // 6️⃣ Ownership: never trust client-supplied id as proof of ownership
+  if (data.id) {
+    const existing = await db.store.findUnique({
+      where: { id: data.id },
+      select: { id: true, userId: true },
+    });
+    if (!existing) {
+      console.error("[authz] upsertStore store not found", {
+        userId: dbUser.id,
+        storeId: data.id,
+      });
+      throw new Error("Store not found.");
+    }
+    assertCanUpdateStore({
+      storeId: existing.id,
+      storeOwnerUserId: existing.userId,
+      callerUserId: dbUser.id,
+      dbRole: dbUser.role,
+      clerkPrivateRole: authUser.privateMetadata?.role,
+    });
+  }
+
+  // 7️⃣ create / update store
   const store = await db.store.upsert({
     where: {
       id: data.id ?? "",

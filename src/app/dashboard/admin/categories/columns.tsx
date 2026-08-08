@@ -238,7 +238,7 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 
 import { toast } from "sonner";
-
+import { adminDeleteCategory } from "@/src/app/actions/admin-catalog.actions";
 import {
   BadgeCheck,
   BadgeMinus,
@@ -322,15 +322,7 @@ const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
     try {
       setLoading(true);
 
-      const res = await fetch(
-        `/api/webhooks?categoryId=${rowData.id}`,
-        { method: "DELETE" }
-      );
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.message || "Failed to delete category");
-      }
+      await adminDeleteCategory(rowData.id);
 
       toast.success("Deleted category", {
         description: "The category has been deleted.",

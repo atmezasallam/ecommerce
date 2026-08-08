@@ -2,6 +2,7 @@
 
 // DB
 import { db } from "@/src/lib/db";
+import { assertProductBelongsToStore } from "@/src/lib/authz-guards";
 
 // Types
 import {
@@ -128,11 +129,22 @@ export const upsertProduct = async (
       where: { id: product.productId },
       select: {
         id: true,
+        storeId: true,
         categoryId: true,
         subCategoryId: true,
         offerTagId: true,
       },
     });
+
+    if (existingProduct) {
+      assertProductBelongsToStore({
+        productId: existingProduct.id,
+        productStoreId: existingProduct.storeId,
+        routeStoreId: store.id,
+        callerUserId: dbUser.id,
+        storeUrl,
+      });
+    }
 
     // Check if the variant already exists
     const existingVariant = await db.productVariant.findUnique({
