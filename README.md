@@ -29,32 +29,6 @@ Local Stripe webhooks (optional): `stripe listen --forward-to localhost:3000/api
 
 ---
 
-## Screenshots
-
-Place captures under [`docs/screenshots/`](./docs/screenshots/). Suggested filenames:
-
-| File | Screen to capture |
-|------|-------------------|
-| `01-storefront-homepage.png` | `/` — hero banners, categories, top-rated / featured / new arrivals |
-| `02-product-variant.png` | `/product/[productSlug]/[variantSlug]?size=…` — variant switcher, sizes, add to cart / wishlist |
-| `03-cart.png` | `/cart` — multi-store cart lines and order summary |
-| `04-seller-dashboard.png` | `/dashboard/seller/stores/[storeUrl]` — seller store overview |
-| `05-seller-orders.png` | `/dashboard/seller/stores/[storeUrl]/orders` — per-item fulfillment |
-| `06-messaging.png` | `/profile/messages` or `/dashboard/seller/messages` — buyer↔seller thread |
-| `07-admin-dashboard.png` | `/dashboard/admin` — platform metrics, pending stores, recent orders |
-
-```markdown
-![Storefront homepage](docs/screenshots/01-storefront-homepage.png)
-![Product page with variants](docs/screenshots/02-product-variant.png)
-![Cart](docs/screenshots/03-cart.png)
-![Seller dashboard](docs/screenshots/04-seller-dashboard.png)
-![Seller order management](docs/screenshots/05-seller-orders.png)
-![Buyer–seller messaging](docs/screenshots/06-messaging.png)
-![Admin dashboard](docs/screenshots/07-admin-dashboard.png)
-```
-
----
-
 ## Features
 
 Derived from real App Router pages and server actions — not aspirational.
